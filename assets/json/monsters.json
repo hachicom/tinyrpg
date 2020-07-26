@@ -1,0 +1,89 @@
+
+{
+    "1":[{
+        "name": "BAT",
+        "frame": "16",
+        "atk": [0,0,0,0]
+    },{
+        "name": "OCTOMBA",
+        "frame": "17",
+        "atk": [0,0,1,1]
+    }],
+    "2":[{
+        "name": "SPACEPIRATE1",
+        "frame": "16",
+        "atk": [0,0,0,0]
+    },{
+        "name": "ALIENADS",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "3":[{
+        "name": "SPACEPIRATE1",
+        "frame": "16",
+        "atk": [0,0,0,0]
+    },{
+        "name": "GREENOCTOMBA",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "4":[{
+        "name": "SPACEPIRATE2",
+        "frame": "16",
+        "atk": [0,0,0,0]
+    },{
+        "name": "GREENBAT",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "5":[{
+        "name": "SPACEPIRATE3",
+        "frame": "16",
+        "atk": [0,0,0,0]
+    },{
+        "name": "GREENALIENADS",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "6":[{
+        "name": "ALIENCRUSH",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    },{
+        "name": "SPACEDRAGON",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "7":[{
+        "name": "SPACEPIRATE4",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    },{
+        "name": "BLUEBAT",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "8":[{
+        "name": "BLUOCTOMBA",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    },{
+        "name": "BLUEALIENADS",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "9":[{
+        "name": "JAKICRUSH",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    },{
+        "name": "REDBEAR",
+        "frame": "17",
+        "atk": [0,0,0,0]
+    }],
+    "10":[{
+        "name": "NICKY",
+        "frame": "16",
+        "atk": [2,2,3,3]
+    }]
+}
