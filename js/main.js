@@ -36,11 +36,23 @@ var config = {
             debug: false,
         }
     },
-    scene: [Scene1,Scene2,Scene3]
+    scene: [Scene1,Scene2,Scene3,SceneP]
 };
 
-//roll dice depending on the faces parameter
-//eg.: roll d6 => rollDice(6)
+/**
+ * VARIÁVEIS GLOBAIS
+ */
+var frameFinalHerois = 15; //aumentar este valor caso altere o spritesheet
+
+/**
+ * FUNÇÕES GLOBAIS
+ */
+
+/**
+ * Rola o dado definido por faces. Pode ser rolado diversas vezes definindo o parametro times
+ * @param {int} faces 
+ * @param {int} times 
+ */
 function rollDice(faces,times) {
     if (typeof times == 'undefined') times = 1;
     var x = 0;

@@ -106,7 +106,6 @@ class Messenger extends Phaser.GameObjects.Group {
     }
 
     closeMessage(){
-        console.log('closing');
         this.msgtxt.alpha = 0;
         this.msgtxt.y = game.config.height;
         this.estaEmCena = false;

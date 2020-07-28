@@ -7,16 +7,16 @@ class Scene2 extends BaseScene {
         this.mapa = [
             [9,9,9,9,9,9,9,9,9],
             [9,9,9,9,0,9,9,9,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,0,0,0,0,0,0,0,9],
-            [9,9,9,9,0,9,9,9,9],
+            [9,1,1,1,2,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,1,1,1,1,1,1,1,9],
+            [9,9,9,9,2,9,9,9,9],
             [9,9,9,9,9,9,9,9,9],
         ];
         this.modo = 'comando'; //comando,mover,resolver,comprar,esperar
@@ -27,6 +27,7 @@ class Scene2 extends BaseScene {
         this.moveX = 0;
         this.moveY = 0;
         this.moveSpeed = 4;
+        this.paused = false;
 
         this.fade(true, 1000, 0,0,0, false);
     }
@@ -43,6 +44,7 @@ class Scene2 extends BaseScene {
         this.load.image('txtbox', 'assets/images/Txtbox.png');
         this.load.tilemapTiledJSON('map', 'assets/json/tileset80.json');
         this.load.plugin('rexshakepositionplugin', 'js/rexshakepositionplugin.min.js', true);
+        this.load.json('monsters', 'assets/json/monsters.json');
     }
 
     create(){
@@ -54,6 +56,9 @@ class Scene2 extends BaseScene {
         this.playericon.scale = 0.25;
 
         this.positions = [(game.config.width/2) - 80,(game.config.width/2) + 80];
+
+        //JSONs
+        this.monstersDB = this.cache.json.get('monsters')
         
         //battle sprites
         this.battlefield = new Battlefield({scene:this});
@@ -83,6 +88,11 @@ class Scene2 extends BaseScene {
             }
         },this);
 
+        this.input.keyboard.on('keyup-SPACE', function (event) {
+            this.scene.pause();
+            this.scene.launch('pauseGame');
+        }, this);
+
         //effects
         this.shakenemy = this.plugins.get('rexshakepositionplugin').add(this.enemy, {
             // mode: 1, // 0|'effect'|1|'behavior'
@@ -91,7 +101,7 @@ class Scene2 extends BaseScene {
         });
 
         //timers
-        //this.shootTimer = this.time.addEvent({ delay: 500, callback: onEvent, callbackScope: this, loop: true });
+        this.actionResumeTimer = this.time.addEvent({ delay: 1000, callback: this.resumeAction, callbackScope: this });
     }
 
     update() {
@@ -305,6 +315,7 @@ class Scene2 extends BaseScene {
         return {
             'x': 40 + (col * 80),
             'y': 80 + (row * 80),
+            'floor': this.mapa[row][col],
             'wall': this.mapa[row][col] == 9
         };
     }
@@ -315,6 +326,7 @@ class Scene2 extends BaseScene {
         return {
             'col': col,
             'row': row,
+            'floor': this.mapa[row][col],
             'wall': this.mapa[row][col] == 9
         };
     }
@@ -374,13 +386,28 @@ class Scene2 extends BaseScene {
 
         //TODO: checar no mapa se a casa está vazia, se tiver sortear entre batalhar, nada ou tesouro
         //      caso esteja com algum ícone, resolver o evento (shopping, oração, descanso, a definir)
-        if (this.coluna == 4 && this.linha == 2){
-            this.messenger.showMessage(["Bem Vindo!","Este é o meu novo game, Tiny RPG: The Pirate Space Ship."],() => {
-                this.modo = 'comando';
-            });
+        let pos = this.placeOnMap(this.coluna,this.linha);
+        if(pos.floor == 0){
+            this.modo = 'comando';
+        }else if (pos.floor == 2){ //evento
+            this.executarEvento();
         }else{
             this.startBattle();
             this.modo = 'batalhar';
+        }
+    }
+
+    executarEvento(){
+        if (this.coluna == 4 && this.linha == 2){
+            this.messenger.showMessage(["Bem Vindo!","Este é o meu novo game, Tiny RPG: The Pirate Space Ship."],() => {
+                this.mapa[this.linha][this.coluna] = 0;
+                this.modo = 'comando';
+            });
+        }else if (this.coluna == 4 && this.linha == 11){
+            this.messenger.showMessage(["Aqui seria o final do jogo, onde ocorre a luta final"],() => {
+                this.mapa[this.linha][this.coluna] = 0;
+                this.modo = 'comando';
+            });
         }
     }
 
@@ -388,7 +415,8 @@ class Scene2 extends BaseScene {
      * BATALHA
      */
     startBattle(){
-        this.enemy.defineEnemy(); //TODO: passar json contendo dados do monstro
+        let monsterID = rollDice(2) - 1;
+        this.enemy.defineEnemy(this.monstersDB[this.linha - 1][monsterID]); //TODO: passar json contendo dados do monstro
         this.battlefield.showBattlefield();
         this.battlemode = 'inicio';
     }
@@ -428,7 +456,9 @@ class Scene2 extends BaseScene {
     }
 
     shoot(){
-        var beam = new Bullet(this,this.enemy.defineShootLane(), this.enemy.y-200);
+        let bulletID = rollDice(4) -1;
+        let bulletFrame = this.enemy.bullets[bulletID];
+        var beam = new Bullet(this,this.enemy.defineShootLane(), this.enemy.y-200, this.linha - 1, bulletFrame);
     }
 
     eraseBullets(){        

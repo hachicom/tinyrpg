@@ -16,6 +16,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
         this.potions = 0;
         this.gold = 2;
         this.level = 1;
+        this.bullets = [0,0,0,0];
 
         //TODO: definir animações aqui
 
@@ -54,7 +55,13 @@ class Enemy extends Phaser.GameObjects.Sprite {
     }
 
     defineEnemy(config){
-        //TODO: definir frame e status através dos dados via json
+        console.log(config);
+        this.setFrame(frameFinalHerois + config.frame);
+        this.hp = config.hp;
+        this.potions = 0; //TODO: pensar em alguma funcionalidade onde o inimigo pode se recuperar após ser derrotado
+        this.gold = 2 * this.scene.linha;
+        this.level = this.scene.linha;
+        this.bullets = config.atk;
     }
 
     getReadytoBattle(){
@@ -65,8 +72,9 @@ class Enemy extends Phaser.GameObjects.Sprite {
 
     attack(){
         this.shootTimer = this.scene.time.addEvent(
-            { delay: 600 - (this.level * 100), callback: this.scene.shoot, callbackScope: this.scene, loop: true }
+            { delay: 1100 - (this.level * 100), callback: this.scene.shoot, callbackScope: this.scene, loop: true }
         );
+
         this.scene.shoot();
     }
 
