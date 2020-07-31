@@ -1,4 +1,4 @@
-class Messenger extends Phaser.GameObjects.Group {
+class ChoiceMaker extends Phaser.GameObjects.Group {
     /**
      * ASSUMINDO QUE A CAIXA DE TEXTO TERÁ 320 PIXELS DE ALTURA
      */
@@ -10,16 +10,18 @@ class Messenger extends Phaser.GameObjects.Group {
         this.scene = config.scene;
 
         //controladores auxiliares
-        this.podePassar = false;
-        this.msgBuffer = [];
-        this.paragrafo = 0;
         this.estaEmCena = false;
-        this.callback = false;
+        this.callback1 = false;
+        this.callback2 = false;
+        this.callback3 = false;
 
         //Elementos gráficos
         this.msgbox = this.create(game.config.width/2,game.config.height,"txtbox").setOrigin(0.5,0);
         this.msgtxt = this.scene.add.text(40,game.config.height, "",txtStyle2).setOrigin(0,0);
         this.add(this.msgtxt);
+        
+        this.choicebox1 = this.create(game.config.width/2,game.config.height/2,"txtbox").setOrigin(0.5,0.5).setScale(0.75,0.25);
+        this.add(this.choicebox1);
 
         this.textween = this.scene.tweens.add({
             targets: this.msgtxt,
@@ -33,7 +35,7 @@ class Messenger extends Phaser.GameObjects.Group {
 
         this.textween.on('complete', function(tween, targets){
             this.estaEmCena = true;
-            this.podePassar = true;
+            this.choicebox1.setVisible(true);
         }, this);
         
         this.fieldween = this.scene.tweens.add({
@@ -70,24 +72,26 @@ class Messenger extends Phaser.GameObjects.Group {
         this.setVisible(false);
     }
 
-    showMessage(msgArr,callback){
+    showQuestion(txt,answersArr,callback1,callback2,callback3){
         this.setVisible(true);
-        this.msgBuffer = msgArr;
         this.paragrafo = 0;
-        this.callback = callback;
+        this.callback1 = callback1;
+        this.callback2 = callback2;
+        this.callback3 = typeof callback3 == 'undefined' ? false : callback3;
 
         this.msgbox.y = game.config.height;
         this.msgtxt.alpha = 0;
         this.msgtxt.y = game.config.height;
-        this.msgtxt.text = this.msgBuffer[0][0];
-        //TODO: definir o sprite do eu lirico
-        console.log(this.msgBuffer[0][1]);
+        this.msgtxt.text = txt;
+
+        console.log(answersArr);
+        this.choicebox1.setVisible(false);
+        
         this.fieldween.play();
         this.podePassar = false;
-        //this.textween.play();
     }
 
-    updateMessage(){
+    /*updateMessage(){
         if (this.podePassar){
             this.msgtxt.alpha = 0;
             this.msgtxt.y = game.config.height;
@@ -95,20 +99,14 @@ class Messenger extends Phaser.GameObjects.Group {
             if (this.paragrafo >= this.msgBuffer.length ){
                 this.closeMessage();
             }else{
-                this.msgtxt.text = this.msgBuffer[this.paragrafo][0];
-                console.log(this.msgBuffer[this.paragrafo][1]);
+                this.msgtxt.text = this.msgBuffer[this.paragrafo];
                 this.podePassar = false;
                 this.textween.play();
             }
-        }/*else{
-            this.textween.stop();            
-            this.msgtxt.alpha = 1;
-            this.msgtxt.y = game.config.height - 300;
-            this.podePassar = true;
-        }*/
-    }
+        }
+    }*/
 
-    closeMessage(){
+    close(){
         this.msgtxt.alpha = 0;
         this.msgtxt.y = game.config.height;
         this.estaEmCena = false;

@@ -4,20 +4,38 @@ class Scene2 extends BaseScene {
     }
 
     init(){
+        /*
+        1: batalha, 2: evento, 3: tesouro, 4: templo, 5: enfermaria, 6 a 9: lojas 
+         */
         this.mapa = [
-            [9,9,9,9,9,9,9,9,9],
-            [9,9,9,9,0,9,9,9,9],
-            [9,1,1,1,2,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,1,1,1,1,1,1,1,9],
-            [9,9,9,9,2,9,9,9,9],
-            [9,9,9,9,9,9,9,9,9],
+            ['x','x','x','x','x','x','x','x','x'],
+            ['x','x','x','x',0,'x','x','x','x'],
+                  ['x',1,1,3,2,1,1,1,'x'],
+                  ['x',1,1,4,5,6,1,1,'x'],
+                  ['x',1,1,7,8,9,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+            ['x','x','x','x',2,'x','x','x','x'],
+            ['x','x','x','x','x','x','x','x','x'],
+        ];
+        this.mapaBlocks = [
+            ['x','x','x','x','x','x','x','x','x'],
+            ['x','x','x','x',0,'x','x','x','x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+                  ['x',1,1,1,1,1,1,1,'x'],
+            ['x','x','x','x',1,'x','x','x','x'],
+            ['x','x','x','x','x','x','x','x','x'],
         ];
         this.modo = 'comando'; //comando,mover,resolver,comprar,esperar
         this.battlemode = 'inicio';
@@ -45,6 +63,7 @@ class Scene2 extends BaseScene {
         this.load.tilemapTiledJSON('map', 'assets/json/tileset80.json');
         this.load.plugin('rexshakepositionplugin', 'js/rexshakepositionplugin.min.js', true);
         this.load.json('monsters', 'assets/json/monsters.json');
+        this.load.json('txt', 'assets/json/txt_'+language+'.json');
     }
 
     create(){
@@ -59,6 +78,7 @@ class Scene2 extends BaseScene {
 
         //JSONs
         this.monstersDB = this.cache.json.get('monsters')
+        this.txtDB = this.cache.json.get('txt')
         
         //battle sprites
         this.battlefield = new Battlefield({scene:this});
@@ -99,9 +119,6 @@ class Scene2 extends BaseScene {
             magnitude: 10,
             // magnitudeMode: 1, // 0|'constant'|1|'decay'
         });
-
-        //timers
-        this.actionResumeTimer = this.time.addEvent({ delay: 1000, callback: this.resumeAction, callbackScope: this });
     }
 
     update() {
@@ -316,7 +333,7 @@ class Scene2 extends BaseScene {
             'x': 40 + (col * 80),
             'y': 80 + (row * 80),
             'floor': this.mapa[row][col],
-            'wall': this.mapa[row][col] == 9
+            'wall': this.mapa[row][col] == 'x'
         };
     }
 
@@ -327,7 +344,7 @@ class Scene2 extends BaseScene {
             'col': col,
             'row': row,
             'floor': this.mapa[row][col],
-            'wall': this.mapa[row][col] == 9
+            'wall': this.mapa[row][col] == 'x'
         };
     }
 
@@ -391,7 +408,21 @@ class Scene2 extends BaseScene {
             this.modo = 'comando';
         }else if (pos.floor == 2){ //evento
             this.executarEvento();
-        }else{
+        }else if (pos.floor == 3){ //tesouro
+            this.executarTesouro();
+        }else if (pos.floor == 4){ //templo
+            this.executarTemplo();
+        }else if (pos.floor == 5){ //enfermaria
+            this.executarEnfermaria();
+        }else if (pos.floor == 6){ //loja de armas
+            this.executarLoja('atk');
+        }else if (pos.floor == 7){ //loja de escudos
+            this.executarLoja('def');
+        }else if (pos.floor == 8){ //loja de botas
+            this.executarLoja('spd');
+        }else if (pos.floor == 9){ //loja de itens (poção/livro/heart)
+            this.executarLoja('item');
+        }else{ //1: batalha
             this.startBattle();
             this.modo = 'batalhar';
         }
@@ -399,16 +430,89 @@ class Scene2 extends BaseScene {
 
     executarEvento(){
         if (this.coluna == 4 && this.linha == 2){
-            this.messenger.showMessage(["Bem Vindo!","Este é o meu novo game, Tiny RPG: The Pirate Space Ship."],() => {
-                this.mapa[this.linha][this.coluna] = 0;
-                this.modo = 'comando';
-            });
+            this.messenger.showMessage([
+                [this.txtDB["BEMVINDO"],"none"],
+                [this.txtDB["NOVOGAME"],"none"]
+            ],
+                () => {
+                    this.mapa[this.linha][this.coluna] = 0;
+                    this.modo = 'comando';
+                }
+            );
         }else if (this.coluna == 4 && this.linha == 11){
-            this.messenger.showMessage(["Aqui seria o final do jogo, onde ocorre a luta final"],() => {
+            this.messenger.showMessage([["Aqui seria o final do jogo, onde ocorre a luta final","none"]],() => {
                 this.mapa[this.linha][this.coluna] = 0;
                 this.modo = 'comando';
             });
         }
+    }
+
+    executarTesouro(){
+        let moedas = (rollDice(4) + 1) * Math.round(this.linha/2);
+        this.messenger.showMessage([
+                [this.txtDB["BAUENCONTRADO1"],"nico"],
+                [this.txtDB["BAUENCONTRADO2"],"belle"],
+                [this.txtDB["BAUENCONTRADO3"],"belle"],
+                [this.txtDB["BAUENCONTRADO4"],"nico"],
+                [this.txtDB["VOCEGANHOUMOEDAS"].replace('VARCOINS',moedas),"none"]
+            ],
+            () => {
+                this.player.gold += moedas;
+                this.modo = 'comando';
+            }
+        );
+    }
+
+    executarTemplo(){
+        
+        this.messenger.showMessage([
+                [this.txtDB["TEMPLOENCONTRADO1"],"belle"],
+                [this.txtDB["TEMPLOENCONTRADO2"],"belle"],
+                [this.txtDB["TEMPLOENCONTRADO3"],"belle"],
+                [this.txtDB["TEMPLOENCONTRADO4"],"nico"],
+                [this.txtDB["TEMPLOENCONTRADO5"],"none"]
+            ],
+            () => {
+                this.player.mp = this.player.maxmp;
+                this.modo = 'comando';
+            }
+        );
+    }
+
+    executarEnfermaria(){
+        //Aqui o jogador será perguntado se deseja descansar ao custo de x moedas (valor por coração a ser recuperado)
+        console.log("enfermaria em construção");
+        this.modo = 'comando';
+    }
+
+    executarLoja(tipo){
+        /*
+        Apresentar 3 itens para compra
+        Verifica se o jogador obteve itens máximos de armas, caso tenha abrir a loja de itens no lugar
+        Equipamentos: verificar de acordo com o que o jogador possui de atk/def/spd.
+                      menor que o valor do item equipado são removidos da loja
+
+        Livro: verificar se o jogador fez duas compras de livro, nesse caso impedir que compre mais
+        Poção: impedir que o jogador compre mais que uma(?)
+        Heart Container: quantos disponíveis (1 ou 2)? verificar se o jogador já comprou em alguma variavel
+
+        Ao clicar: descreve o item e pergunta ao jogador se vai comprar por X moedas
+         */
+        switch(tipo){
+            case 'atk': 
+                console.log(tipo);
+                break;
+            case 'def': 
+                console.log(tipo);
+                break;
+            case 'spd': 
+                console.log(tipo);
+                break;
+            case 'item': 
+                console.log(tipo);
+                break;
+        }
+        this.modo = 'comando';
     }
 
     /**
@@ -467,14 +571,54 @@ class Scene2 extends BaseScene {
         }.bind(this));
     }
 
+    pauseAction(){
+        this.player.pause();
+        this.enemy.pause();
+        this.projectiles.children.each(function(b) {
+            b.pause();
+        }.bind(this));
+        this.miracleButtons.setVisible(false);
+        this.time.addEvent({ delay: 1500, callback: this.resumeAction, callbackScope: this });
+    }
+
+    resumeAction(){
+        this.player.resume();
+        this.enemy.resume();
+        this.projectiles.children.each(function(b) {
+            b.resume();
+        }.bind(this));
+        this.miracleButtons.setVisible(true);
+        this.battlefield.hideMiracleText();
+    }
+
     callMiracle(miracle){
         if (this.player.mp <= 0) return false;
-        console.log(miracle);
         this.player.mp--;
+        this.pauseAction();
+        this.battlefield.showMiracleText(miracle);
+
+        switch(miracle){
+            case "heal": 
+                this.player.heal(true); 
+                break;
+            case "clear": 
+                this.eraseBullets(); 
+                this.enemy.pause(true); 
+                this.time.addEvent({ delay: 2000, callback: this.enemy.resumeForced, callbackScope: this.enemy });
+                break;
+            case "might": 
+                this.player.bonusatk += 1; 
+                break;
+            case "protect": 
+                this.player.bonusdef += 1; 
+                this.player.recoverDefense(); 
+                break;
+
+        }
     }
 
     hitEnemy(){
-        this.enemy.hp -= 1;
+        this.enemy.hp -= this.player.atk + this.player.bonusatk;
         if (this.enemy.hp > 0){
             this.shakenemy.shake({
                 duration: 500,
@@ -494,11 +638,17 @@ class Scene2 extends BaseScene {
 
     hitPlayer(projectile,player){
         if (!player.moving){
-            this.eraseBullets();
-            if (!player.getBack){
-                player.hp -= 1;
+            projectile.destroy();
+            if (this.player.shield <= 0){
+                this.eraseBullets();
+                if (!player.getBack){
+                    player.hp -= 1;
+                }
+                player.retreat();
+            }else{                
+                this.player.shield--;
+                this.player.y += 20;
             }
-            player.retreat();
         }
     }
 

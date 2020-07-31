@@ -11,6 +11,8 @@ class Player extends Phaser.GameObjects.Sprite {
         this.chargingAttack = false;
         this.getBack = false;
         this.yInicial = 1000;
+        this.paused = false;
+        this.moving = false; //se true, o personagem não pode trocar a lane e nem ser atingido
 
         //status
         this.hp = 6;
@@ -22,8 +24,12 @@ class Player extends Phaser.GameObjects.Sprite {
         this.spd = 1;
         this.potions = 0;
         this.gold = 0;
-        this.moving = false; //se true, o personagem não pode trocar a lane e nem ser atingido
         this.dead = false;
+        this.shield = this.def;
+
+        //incrementados ao invocar os milagres might e protect. Somem após o fim da batalha
+        this.bonusatk = 0;
+        this.bonusdef = 0;
 
         //TODO: definir animações aqui
 
@@ -55,6 +61,15 @@ class Player extends Phaser.GameObjects.Sprite {
         this.setVisible(true);
         this.alpha = 0;
         this.appearTween.play();
+        this.recoverDefense();
+    }
+
+    heal(complete){
+        if (complete){
+            this.hp = this.maxhp;
+        }else{
+            this.hp += 9 + rollDice(6);
+        }
     }
 
     charge(){
@@ -83,11 +98,28 @@ class Player extends Phaser.GameObjects.Sprite {
     }
 
     getoutoftheRing(){
+        this.bonusatk = 0;
+        this.bonusdef = 0;
         this.setVisible(false);
         //TODO: fadeout?
     }
 
+    pause(){
+        //TODO: definir uma pose ao pausar
+        this.paused = true;
+    }
+
+    resume(){
+        this.paused = false;
+    }
+
+    recoverDefense(){
+        this.shield = this.def + this.bonusdef
+    }
+
     updatePosition(){
+        if (this.paused) return false;
+
         if (this.moving == true){
             if(this.x<this.nextpos) {
                 this.x+=20;
@@ -117,7 +149,10 @@ class Player extends Phaser.GameObjects.Sprite {
 
                 //Checar se o jogador vai ver se no céu tem pão
                 if(this.hp > 0){
-                    if (this.chargingAttack) this.getBack = false;
+                    if (this.chargingAttack) {
+                        this.getBack = false;
+                        this.recoverDefense();
+                    }
                 }else{
                     this.dead = true;
                     this.scene.fimDaBatalha(false);

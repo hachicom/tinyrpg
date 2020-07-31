@@ -3,13 +3,15 @@ class Bullet extends Phaser.GameObjects.Sprite {
         super(scene, x, y, "bullets", frame);
         this.scale = 0.5;
 
+        this.velocidade = 400 + (level * 50);
+
         // 3.2 add to scene
         scene.add.existing(this);
 
         // 3.3
         //this.play("beam_anim");
         scene.physics.world.enableBody(this);
-        this.body.velocity.y = 400 + (level * 50);
+        this.body.velocity.y = this.velocidade;
         this.body.setSize(this.width - 60, this.height - 60).setOffset(30,60);
 
         //tipo 0: normal, tipo 1: duplo. tipo 2: veneno (1 de dano + lento), tipo 3: duplo veneno (2 de dano + lento)
@@ -20,6 +22,13 @@ class Bullet extends Phaser.GameObjects.Sprite {
 
   }
 
+  pause(){
+    this.body.velocity.y = 0;
+  }
+
+  resume(){
+    this.body.velocity.y = this.velocidade;
+  }
 
   update(){
 

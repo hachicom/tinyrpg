@@ -43,6 +43,7 @@ var config = {
  * VARIÁVEIS GLOBAIS
  */
 var frameFinalHerois = 15; //aumentar este valor caso altere o spritesheet
+var language = 'pt-br'; //en-us
 
 /**
  * FUNÇÕES GLOBAIS

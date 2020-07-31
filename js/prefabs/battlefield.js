@@ -12,6 +12,7 @@ class Battlefield extends Phaser.GameObjects.Group {
         this.msgcenter = this.scene.add.text(game.config.width/2,game.config.height/2, "Click to Start Battle",txtStyle1).setOrigin(0.5,0.5);
         this.add(this.msgcenter);
         this.msgcenter.setVisible(false);
+        this.msgcenter.setDepth(10);
 
         this.textween = this.scene.tweens.add({
             targets: this.msgcenter,
@@ -21,6 +22,16 @@ class Battlefield extends Phaser.GameObjects.Group {
             repeat: -1,
             paused: true,
             yoyo: true
+        });
+
+        this.miracletween = this.scene.tweens.add({
+            targets: this.msgcenter,
+            alpha: { from: 0, to: 1 },
+            y: { from: game.config.height, to: game.config.height/2 },
+            ease: 'Linear',
+            duration: 500,
+            repeat: 0,
+            paused: true
         });
         
         this.fieldween = this.scene.tweens.add({
@@ -85,7 +96,18 @@ class Battlefield extends Phaser.GameObjects.Group {
         this.msgcenter.setVisible(true);
         this.msgcenter.alpha = 0;
         this.textween.restart();
-        this.scene.miracleButtons.setVisible(false);
+    }
+
+    showMiracleText(txt){
+        this.msgcenter.text = txt;
+        this.msgcenter.setVisible(true);
+        this.msgcenter.alpha = 0;
+        this.miracletween.play();
+    }
+
+    hideMiracleText(){
+        this.msgcenter.text = "";
+        this.msgcenter.setVisible(false);
     }
 
     hideBattlefield(){
