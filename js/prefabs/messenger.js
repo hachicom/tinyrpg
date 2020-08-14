@@ -39,8 +39,8 @@ class Messenger extends Phaser.GameObjects.Group {
         this.fieldween = this.scene.tweens.add({
             targets: this.msgbox,
             y: { from: game.config.height, to: game.config.height - 320 },
-            ease: 'Back',
-            duration: 1000,
+            ease: 'Linear',
+            duration: 250,
             repeat: 0,
             paused: true
         });
@@ -52,8 +52,8 @@ class Messenger extends Phaser.GameObjects.Group {
         this.fieldweenOut = this.scene.tweens.add({
             targets: this.msgbox,
             y: { from: game.config.height - 320, to: game.config.height},
-            ease: 'Back',
-            duration: 1000,
+            ease: 'Linear',
+            duration: 250,
             repeat: 0,
             paused: true
         });

@@ -55,10 +55,13 @@ class Scene2 extends BaseScene {
         this.load.spritesheet('characters', 'assets/images/characters.png',{ frameWidth: 320, frameHeight: 320 });
         this.load.spritesheet('bullets', 'assets/images/bullets.png',{ frameWidth: 240, frameHeight: 240 });
         this.load.spritesheet('icons', 'assets/images/icons120.png',{ frameWidth: 120, frameHeight: 120 });
-        this.load.spritesheet('iconsui', 'assets/images/icons320.png',{ frameWidth: 160, frameHeight: 320 });
+        this.load.spritesheet('btns120', 'assets/images/btns120.png',{ frameWidth: 480, frameHeight: 120 });
+        this.load.spritesheet('heartui', 'assets/images/icons320.png',{ frameWidth: 160, frameHeight: 320 });
+        this.load.spritesheet('iconsui', 'assets/images/icons320.png',{ frameWidth: 320, frameHeight: 320 });
         this.load.image('planet', 'assets/images/planet.png');
         this.load.image('starfield', 'assets/images/starfield.png');
         this.load.image('battlefield', 'assets/images/battlefield.png');
+        this.load.image('windowshop', 'assets/images/Win3.png');
         this.load.image('txtbox', 'assets/images/Txtbox.png');
         this.load.tilemapTiledJSON('map', 'assets/json/tileset80.json');
         this.load.plugin('rexshakepositionplugin', 'js/rexshakepositionplugin.min.js', true);
@@ -85,7 +88,11 @@ class Scene2 extends BaseScene {
         this.enemy = new Enemy({scene:this,x:game.config.width/2,y:200});
         this.player = new Player({scene:this,x:(game.config.width/2) - 80,y:game.config.height - 320});
         this.projectiles = this.add.group();
-        this.createMiracleButtons();
+        this.createBattleButtons();
+
+        //shop sprites
+        this.shop = new Shop({scene:this});
+        this.createShopButtons();
 
         //UI Sprites        
         this.messenger = new Messenger({scene:this});
@@ -111,6 +118,14 @@ class Scene2 extends BaseScene {
         this.input.keyboard.on('keyup-SPACE', function (event) {
             this.scene.pause();
             this.scene.launch('pauseGame');
+        }, this);
+
+        this.input.keyboard.on('keyup-Z', function (event) {
+            this.shop.showStore('atk');
+        }, this);
+
+        this.input.keyboard.on('keyup-X', function (event) {
+            this.shop.showStore('def');
         }, this);
 
         //effects
@@ -213,42 +228,70 @@ class Scene2 extends BaseScene {
         });
     }
 
-    createMiracleButtons(){
-        this.miracleButtons = this.add.group();
-        let healBtn = this.add.image(game.config.width/2 - 320,game.config.height - 160,'icons',0).setOrigin(0,0);
+    createBattleButtons(){
+        this.battleButtons = this.add.group();
+
+        let miracleTxt = this.add.text(game.config.width/2 + 160,game.config.height - 280, "x 3",txtStyle1).setOrigin(0,0);
+        this.battleButtons.add(miracleTxt);
+
+        let healBtn = this.add.image(miracleTxt.x,miracleTxt.y - 120,'icons',0).setOrigin(0,0);
         healBtn.setInteractive().on('pointerdown', function(pointer){
             this.callMiracle('heal');
         }, this);
-        this.miracleButtons.add(healBtn);  
+        this.battleButtons.add(healBtn);  
         
-        let clearBtn = this.add.image(healBtn.x + 140,game.config.height - 160,'icons',1).setOrigin(0,0);
+        let clearBtn = this.add.image(healBtn.x,healBtn.y - 120,'icons',1).setOrigin(0,0);
         clearBtn.setInteractive().on('pointerdown', function(pointer){
             this.callMiracle('clear');
         }, this);
-        this.miracleButtons.add(clearBtn); 
+        this.battleButtons.add(clearBtn); 
         
-        let mightBtn = this.add.image(clearBtn.x + 140,game.config.height - 160,'icons',2).setOrigin(0,0);
+        let mightBtn = this.add.image(clearBtn.x,clearBtn.y - 120,'icons',2).setOrigin(0,0);
         mightBtn.setInteractive().on('pointerdown', function(pointer){
             this.callMiracle('might');
         }, this);
-        this.miracleButtons.add(mightBtn); 
+        this.battleButtons.add(mightBtn); 
         
-        let protectBtn = this.add.image(mightBtn.x + 140,game.config.height - 160,'icons',3).setOrigin(0,0);
+        let protectBtn = this.add.image(mightBtn.x,mightBtn.y - 120,'icons',3).setOrigin(0,0);
         protectBtn.setInteractive().on('pointerdown', function(pointer){
             this.callMiracle('protect');
         }, this);
-        this.miracleButtons.add(protectBtn); 
+        this.battleButtons.add(protectBtn);   
+        
+        let dodgeBtn = this.add.image(game.config.width/2 - 240,game.config.height - 160,'btns120',0).setOrigin(0,0);
+        dodgeBtn.setInteractive().on('pointerdown', function(pointer){
+            this.player.changeLane(pointer);
+        }, this);
+        this.battleButtons.add(dodgeBtn);
 
-        let miracleTxt = this.add.text(protectBtn.x + 140,game.config.height - 180, "x 3",txtStyle1).setOrigin(0,0);
-        this.miracleButtons.add(miracleTxt);
+        let dodgeTxt = this.add.text(game.config.width/2,dodgeBtn.y, this.txtDB["DODGELABEL"],txtStyleBtn).setOrigin(0.5,0);
+        this.battleButtons.add(dodgeTxt);
 
-        this.miracleButtons.setVisible(false);
+        this.battleButtons.setVisible(false);
+    }
+
+    createShopButtons(){
+        this.shopButtons = this.add.group();
+
+        let btn0 = this.add.image(game.config.width/2 + 10,game.config.height/2 - 360,'icons',0).setOrigin(0,0);
+        btn0.setInteractive().on('pointerdown', function(pointer){
+            this.buySumthinWillYa(0);
+        }, this);
+        this.shopButtons.add(btn0);
+
+        let btn1 = this.add.image(btn0.x,btn0.y + 260,'icons',1).setOrigin(0,0);
+        btn1.setInteractive().on('pointerdown', function(pointer){
+            this.buySumthinWillYa(1);
+        }, this);
+        this.shopButtons.add(btn1); 
+
+        this.shopButtons.setVisible(false); 
     }
 
     createUIelements(){
+        //life
         this.health = this.add.group();
         let picframe = 0;
-
         for (let j = 0; j < 2; j ++){
             for (let i = 0; i < 10; i++){
                 if (i % 2 == 0){
@@ -256,11 +299,31 @@ class Scene2 extends BaseScene {
                 }else{
                     picframe = 1;
                 }
-                const heart = this.add.image(20 * i, (40 * j),'iconsui',picframe).setOrigin(0,0);
+                const heart = this.add.image(20 * i, (40 * j),'heartui',picframe).setOrigin(0,0);
                 heart.scale = 0.125;
                 this.health.add(heart);
             }
-        }        
+        }
+        
+        //gold
+        const gold = this.add.image(320,0,'iconsui',4).setOrigin(0,0);
+        gold.scale = 0.125;
+        this.goldTxt = this.add.text(384,30, "000",txtStyle3).setOrigin(1,0);
+
+        //faith
+        const faith = this.add.image(420,0,'iconsui',3).setOrigin(0,0);
+        faith.scale = 0.125;
+        this.mpTxt = this.add.text(484,30, "00",txtStyle3).setOrigin(1,0);
+
+        //potion
+        this.potionIcon = this.add.image(560,0,'iconsui',2).setOrigin(0,0);
+        this.potionIcon.scale = 0.25;
+        //this.potionTxt = this.add.text(320,40, "0",txtStyle3).setOrigin(0,0);
+
+        //pause
+        const pause = this.add.image(720,0,'icons',10).setOrigin(0,0);
+        pause.scale = 0.75;
+
     }
 
     updateUI(){
@@ -287,7 +350,16 @@ class Scene2 extends BaseScene {
             hearts[i].setFrame(picframe);
         }
 
-        this.miracleButtons.getChildren()[4].setText('x '+this.player.mp);
+        this.goldTxt.text = this.player.gold;
+        this.mpTxt.text = this.player.mp;
+
+        if (this.player.potions > 0){
+            this.potionIcon.setVisible(true);
+        }else{
+            this.potionIcon.setVisible(false);
+        }
+
+        this.battleButtons.getChildren()[0].setText('x '+this.player.mp);
     }
 
     /**
@@ -464,7 +536,7 @@ class Scene2 extends BaseScene {
     }
 
     executarTemplo(){
-        
+        //TODO: criar umas 3 ou 4 conversas sobre e randomizar
         this.messenger.showMessage([
                 [this.txtDB["TEMPLOENCONTRADO1"],"belle"],
                 [this.txtDB["TEMPLOENCONTRADO2"],"belle"],
@@ -481,10 +553,63 @@ class Scene2 extends BaseScene {
 
     executarEnfermaria(){
         //Aqui o jogador será perguntado se deseja descansar ao custo de x moedas (valor por coração a ser recuperado)
-        console.log("enfermaria em construção");
-        this.modo = 'comando';
+        this.custoenfermaria = (this.player.maxhp - this.player.hp) * 5;
+        let msg = [[this.txtDB["ENFERMARIAENCONTRADA5"],"belle"]];
+        //TODO: criar prefab contendo as arrays de mensagens, e selecionar qual usar por aqui
+        if (!this.player.encontrouEnfermaria){
+            msg = [
+                [this.txtDB["ENFERMARIAENCONTRADA1"],"belle"],
+                [this.txtDB["ENFERMARIAENCONTRADA2"],"belle"],
+                [this.txtDB["ENFERMARIAENCONTRADA3"],"nico"],
+                [this.txtDB["ENFERMARIAENCONTRADA4"],"nico"]
+            ]
+        }
+
+        if (this.player.hp >= this.player.maxhp){
+            msg = [[this.txtDB["ENFERMARIAENCONTRADA6"],"nico"]];
+        }
+
+        this.messenger.showMessage(msg, () => {
+                if (this.player.hp < this.player.maxhp){
+                    let choicer = new ChoiceMaker({scene:this});
+                    choicer.showQuestion(this.txtDB["DESEJARECUPERARENERGIAPORXMOEDAS"].replace('VARCOINS',this.custoenfermaria),
+                    [this.txtDB["SIM"],this.txtDB["NAO"]],
+                        () => {
+                            if (this.custoenfermaria <= this.player.gold){
+                                this.player.hp = this.player.maxhp;
+                                this.player.gold -= this.custoenfermaria;
+                                if (this.player.gold < 0) this.player.gold = 0;
+                                this.messenger.showMessage([
+                                    [this.txtDB["SEUSPONTOSDEVIDAFORAMRECUPERADOS"],"none"]
+                                ],
+                                () => {
+                                    this.modo = 'comando';
+                                });
+                            }else{
+                                this.messenger.showMessage([
+                                    [this.txtDB["DINHEIROINSUFICIENTE"],"none"]
+                                ],
+                                () => {
+                                    this.modo = 'comando';
+                                });
+                            }
+                        },
+                        () => {
+                            this.modo = 'comando';
+                        }
+                    );
+                }else{
+                    this.modo = 'comando';
+                }
+            }
+        );
+
+        this.player.encontrouEnfermaria = true;
     }
 
+    /**
+     * COMPRAS
+     */
     executarLoja(tipo){
         /*
         Apresentar 3 itens para compra
@@ -515,6 +640,11 @@ class Scene2 extends BaseScene {
         this.modo = 'comando';
     }
 
+    buySumthinWillYa(opt){
+        console.log(opt);
+        //TODO: abrir uma choice perguntando se deseja comprar o item e desabilitar os botões
+    }
+
     /**
      * BATALHA
      */
@@ -525,7 +655,7 @@ class Scene2 extends BaseScene {
         this.battlemode = 'inicio';
     }
 
-    controlBattle(pointer){
+    controlBattle(pointer){ //pointer
         switch(this.battlemode){
             case 'inicio': 
                 if (this.battlefield.modo == 'inicio'){
@@ -536,26 +666,14 @@ class Scene2 extends BaseScene {
                 }
                 break;
             case 'jogando': 
-                if (pointer.y < game.config.height - 160){
-                    this.player.changeLane(pointer);
-                }
+                // if (pointer.y < game.config.height - 160){
+                //     this.player.changeLane(pointer);
+                // }
                 break;
             case 'fim': 
                 this.modo = 'comando';
                 this.battlefield.hideBattlefield();
                 break;
-        }
-    }
-
-    changeLane(pointer){
-        if (this.moving == false){
-            this.lane ++;
-            //if (pointer.leftButtonDown()){
-            if (this.lane > 1){
-                this.lane = 0;
-            }
-            this.nextpos = this.positions[this.lane];
-            this.moving = true;
         }
     }
 
@@ -577,7 +695,7 @@ class Scene2 extends BaseScene {
         this.projectiles.children.each(function(b) {
             b.pause();
         }.bind(this));
-        this.miracleButtons.setVisible(false);
+        this.battleButtons.setVisible(false);
         this.time.addEvent({ delay: 1500, callback: this.resumeAction, callbackScope: this });
     }
 
@@ -587,7 +705,7 @@ class Scene2 extends BaseScene {
         this.projectiles.children.each(function(b) {
             b.resume();
         }.bind(this));
-        this.miracleButtons.setVisible(true);
+        this.battleButtons.setVisible(true);
         this.battlefield.hideMiracleText();
     }
 

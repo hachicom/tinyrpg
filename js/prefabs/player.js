@@ -27,6 +27,10 @@ class Player extends Phaser.GameObjects.Sprite {
         this.dead = false;
         this.shield = this.def;
 
+        //mensagens tutorial
+        this.bemvindo = false;
+        this.encontrouEnfermaria = false;
+
         //incrementados ao invocar os milagres might e protect. Somem após o fim da batalha
         this.bonusatk = 0;
         this.bonusdef = 0;

@@ -97,7 +97,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
     die(){
         this.shootTimer.remove(false);
         this.disappearTween.play();
-        this.scene.miracleButtons.setVisible(false);
+        this.scene.battleButtons.setVisible(false);
     }
 
     getoutoftheRing(){

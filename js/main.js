@@ -1,9 +1,21 @@
+var txtStyleBtn = {
+    fill: "#E6AD00",
+    stroke: "#503C01",
+    strokeThickness: 14,
+    fontFamily: 'font1',
+    fontSize: 64,
+    lineSpacing: 0,
+    align: 'center',
+    wordWrap: { width: 720, useAdvancedWrap: true }
+};
+
 var txtStyle1 = {
     fill: "#ffffff",
     stroke: "#000000",
-    strokeThickness: 10,
+    strokeThickness: 12,
     fontFamily: 'font1',
     fontSize: 64,
+    lineSpacing: 0,
     align: 'center',
     wordWrap: { width: 720, useAdvancedWrap: true }
 };
@@ -11,10 +23,33 @@ var txtStyle1 = {
 var txtStyle2 = {
     fill: "#ffffff",
     stroke: "#000000",
-    strokeThickness: 20,
+    strokeThickness: 14,
     fontFamily: 'font1',
-    fontSize: 64,
+    fontSize: 56,
+    lineSpacing: -16,
     align: 'left',
+    wordWrap: { width: 720, useAdvancedWrap: true }
+};
+
+var txtStyle3 = {
+    fill: "#000000",
+    stroke: "#ffffff",
+    strokeThickness: 6,
+    fontFamily: 'font1',
+    fontSize: 48,
+    lineSpacing: 0,
+    align: 'right',
+    wordWrap: { width: 720, useAdvancedWrap: true }
+};
+
+var txtStyle4 = {
+    fill: "#ffffff",
+    stroke: "#000000",
+    strokeThickness: 6,
+    fontFamily: 'font1',
+    fontSize: 48,
+    lineSpacing: 0,
+    align: 'right',
     wordWrap: { width: 720, useAdvancedWrap: true }
 };
 

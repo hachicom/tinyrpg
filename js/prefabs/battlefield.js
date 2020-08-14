@@ -80,19 +80,19 @@ class Battlefield extends Phaser.GameObjects.Group {
         this.setVisible(true);
         this.field.y = game.config.height;
         this.msgcenter.alpha = 0;
-        this.msgcenter.text = "Click to Start Battle";
+        this.msgcenter.text = this.scene.txtDB["CLICKTOSTARTBATTLE"];
         this.fieldween.play();
     }
 
     startBattle(){
         this.textween.stop();
         this.msgcenter.setVisible(false);
-        this.scene.miracleButtons.setVisible(true);
+        this.scene.battleButtons.setVisible(true);
         this.modo = 'jogando';
     }
 
     showVictoryMsg(){
-        this.msgcenter.text = "YOU WIN!";
+        this.msgcenter.text = this.scene.txtDB["YOUWIN"];
         this.msgcenter.setVisible(true);
         this.msgcenter.alpha = 0;
         this.textween.restart();
