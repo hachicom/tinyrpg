@@ -61,7 +61,7 @@ class Scene2 extends BaseScene {
         this.load.image('planet', 'assets/images/planet.png');
         this.load.image('starfield', 'assets/images/starfield.png');
         this.load.image('battlefield', 'assets/images/battlefield.png');
-        this.load.image('windowshop', 'assets/images/Win3.png');
+        this.load.image('windowshop', 'assets/images/Win4.png');
         this.load.image('txtbox', 'assets/images/Txtbox.png');
         this.load.tilemapTiledJSON('map', 'assets/json/tileset80.json');
         this.load.plugin('rexshakepositionplugin', 'js/rexshakepositionplugin.min.js', true);
@@ -273,17 +273,25 @@ class Scene2 extends BaseScene {
     createShopButtons(){
         this.shopButtons = this.add.group();
 
-        let btn0 = this.add.image(game.config.width/2 + 10,game.config.height/2 - 360,'icons',0).setOrigin(0,0);
+        let btn0 = this.add.image(game.config.width/2 - 64,game.config.height/2 - 368,'icons',0).setOrigin(0,0);
         btn0.setInteractive().on('pointerdown', function(pointer){
             this.buySumthinWillYa(0);
         }, this);
         this.shopButtons.add(btn0);
 
-        let btn1 = this.add.image(btn0.x,btn0.y + 260,'icons',1).setOrigin(0,0);
+        let btn1 = this.add.image(btn0.x,btn0.y + 190,'icons',1).setOrigin(0,0);
         btn1.setInteractive().on('pointerdown', function(pointer){
             this.buySumthinWillYa(1);
         }, this);
         this.shopButtons.add(btn1); 
+
+        let btn2 = this.add.image(btn1.x,btn1.y + 190,'icons',2).setOrigin(0,0);
+        btn2.setInteractive().on('pointerdown', function(pointer){
+            this.buySumthinWillYa(2);
+        }, this);
+        this.shopButtons.add(btn2); 
+
+        //TODO: adicionar botão para fechar janela
 
         this.shopButtons.setVisible(false); 
     }
@@ -623,26 +631,25 @@ class Scene2 extends BaseScene {
 
         Ao clicar: descreve o item e pergunta ao jogador se vai comprar por X moedas
          */
-        switch(tipo){
-            case 'atk': 
-                console.log(tipo);
-                break;
-            case 'def': 
-                console.log(tipo);
-                break;
-            case 'spd': 
-                console.log(tipo);
-                break;
-            case 'item': 
-                console.log(tipo);
-                break;
-        }
-        this.modo = 'comando';
+        this.shop.showStore(tipo);
+        //this.modo = 'comando';
     }
 
     buySumthinWillYa(opt){
-        console.log(opt);
-        //TODO: abrir uma choice perguntando se deseja comprar o item e desabilitar os botões
+        let produto = this.shop.getItemData(opt);
+        this.messenger.showMessage([[this.txtDB[produto.msg],"none"]], () => {
+            let choicer = new ChoiceMaker({scene:this});
+            choicer.showQuestion(this.txtDB["CONFIRMARCOMPRA"].replace('VARCOINS',produto.valor),
+            [this.txtDB["SIM"],this.txtDB["NAO"]],
+                () => {
+                    this.shop.buySumthinWillYa(opt);
+                },
+                () => {
+                    //this.modo = 'comando';
+                    console.log('não comprou');
+                }
+            );
+        });
     }
 
     /**

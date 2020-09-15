@@ -53,6 +53,17 @@ var txtStyle4 = {
     wordWrap: { width: 720, useAdvancedWrap: true }
 };
 
+var txtStyle5 = {
+    fill: "#ffffff",
+    stroke: "#000000",
+    strokeThickness: 6,
+    fontFamily: 'font1',
+    fontSize: 32,
+    lineSpacing: 0,
+    align: 'right',
+    wordWrap: { width: 720, useAdvancedWrap: true }
+};
+
 const bgColorMain = "#0000ff";
 
 var config = {
