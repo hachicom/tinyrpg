@@ -291,6 +291,12 @@ class Scene2 extends BaseScene {
         }, this);
         this.shopButtons.add(btn2); 
 
+        let btnC = this.add.image(game.config.width/2 + 168,130,'icons',5).setOrigin(0,0);
+        btnC.setInteractive().on('pointerdown', function(pointer){
+            this.fecharLoja();
+        }, this);
+        this.shopButtons.add(btnC); 
+
         //TODO: adicionar botão para fechar janela
 
         this.shopButtons.setVisible(false); 
@@ -650,6 +656,10 @@ class Scene2 extends BaseScene {
                 }
             );
         });
+    }
+
+    fecharLoja(){
+        this.shop.hideStore();
     }
 
     /**

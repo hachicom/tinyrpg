@@ -63,6 +63,7 @@ class Shop extends Phaser.GameObjects.Group {
         this.fieldweenOut.on('complete', function(tween, targets){
             // this.titlelable.setVisible(false);
             this.setVisible(false);
+            this.scene.modo = 'comando';
         }, this);
 
         this.modo = 'criado'; //criado,inicio,jogando,fim
@@ -128,6 +129,7 @@ class Shop extends Phaser.GameObjects.Group {
 
     hideStore(){
         // this.textween.stop();
+        this.scene.shopButtons.setVisible(false); 
         this.titlelable.setVisible(false);
         this.fieldweenOut.play();
     }
