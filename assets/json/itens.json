@@ -1,0 +1,111 @@
+{
+    "weapons": [{
+        "name": "CLAWLV1",
+        "type": "weapon",
+        "desc": "CLAWLV1DESC",
+        "level": 1,
+        "atk": 2,
+        "def": 0,
+        "spd": 0,
+        "gold": 5
+    },{
+        "name": "CLAWLV2",
+        "type": "weapon",
+        "desc": "CLAWLV2DESC",
+        "level": 2,
+        "atk": 4,
+        "def": 0,
+        "spd": 0,
+        "gold": 10
+    },{
+        "name": "CLAWLV3",
+        "type": "weapon",
+        "desc": "CLAWLV3DESC",
+        "level": 3,
+        "atk": 7,
+        "def": 0,
+        "spd": 0,
+        "gold": 20
+    }],
+    "shields": [{
+        "name": "SHIELDLV1",
+        "type": "shield",
+        "desc": "SHIELDLV1DESC",
+        "level": 1,
+        "atk": 0,
+        "def": 1,
+        "spd": 0,
+        "gold": 4
+    },{
+        "name": "SHIELDLV2",
+        "type": "shield",
+        "desc": "SHIELDLV2DESC",
+        "level": 2,
+        "atk": 1,
+        "def": 2,
+        "spd": 0,
+        "gold": 10
+    },{
+        "name": "SHIELDLV3",
+        "type": "shield",
+        "desc": "SHIELDLV3DESC",
+        "level": 3,
+        "atk": 0,
+        "def": 4,
+        "spd": 0,
+        "gold": 16
+    }],
+    "boots": [{
+        "name": "BOOTLV1",
+        "type": "boot",
+        "desc": "BOOTLV1DESC",
+        "level": 1,
+        "atk": 0,
+        "def": 0,
+        "spd": 2,
+        "gold": 3
+    },{
+        "name": "BOOTLV2",
+        "type": "boot",
+        "desc": "BOOTLV2DESC",
+        "level": 2,
+        "atk": 0,
+        "def": 0,
+        "spd": 3,
+        "gold": 5
+    },{
+        "name": "BOOTLV3",
+        "type": "boot",
+        "desc": "BOOTLV3DESC",
+        "level": 3,
+        "atk": 0,
+        "def": 0,
+        "spd": 5,
+        "gold": 14
+    }],
+    "items": [{
+        "name": "POTION",
+        "type": "item",
+        "desc": "POTIONDESC",
+        "effect": "KEEP",
+        "qtd": 9,
+        "gold": 10,
+        "increase": 0
+    },{
+        "name": "HEART",
+        "type": "item",
+        "desc": "HEARTDESC",
+        "effect": "HPMAXUP1",
+        "qtd": 2,
+        "gold": 50,
+        "increase": 2
+    },{
+        "name": "BOOK",
+        "type": "item",
+        "desc": "BOOKDESC",
+        "effect": "MPMAXUP2",
+        "qtd": 2,
+        "gold": 80,
+        "increase": 2
+    }]
+}

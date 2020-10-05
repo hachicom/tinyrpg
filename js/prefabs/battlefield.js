@@ -91,6 +91,20 @@ class Battlefield extends Phaser.GameObjects.Group {
         this.modo = 'jogando';
     }
 
+    calculaDmg(level){
+        let dmg = 1;
+        
+        if (level >= 4 && level < 7){
+            dmg = 3;
+        }else if (level >= 7 && level < 10){
+            dmg = 5;
+        }else if (level >= 10){
+            dmg = 10;
+        }
+
+        return dmg;
+    }
+
     showVictoryMsg(){
         this.msgcenter.text = this.scene.txtDB["YOUWIN"];
         this.msgcenter.setVisible(true);

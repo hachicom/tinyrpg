@@ -10,9 +10,9 @@ class Scene2 extends BaseScene {
         this.mapa = [
             ['x','x','x','x','x','x','x','x','x'],
             ['x','x','x','x',0,'x','x','x','x'],
-                  ['x',1,1,3,2,1,1,1,'x'],
-                  ['x',1,1,4,5,6,1,1,'x'],
-                  ['x',1,1,7,8,9,1,1,'x'],
+                  ['x',1,1,3,2,6,1,1,'x'],
+                  ['x',1,1,4,9,7,1,1,'x'],
+                  ['x',1,1,7,5,8,1,1,'x'],
                   ['x',1,1,1,1,1,1,1,'x'],
                   ['x',1,1,1,1,1,1,1,'x'],
                   ['x',1,1,1,1,1,1,1,'x'],
@@ -66,6 +66,7 @@ class Scene2 extends BaseScene {
         this.load.tilemapTiledJSON('map', 'assets/json/tileset80.json');
         this.load.plugin('rexshakepositionplugin', 'js/rexshakepositionplugin.min.js', true);
         this.load.json('monsters', 'assets/json/monsters.json');
+        this.load.json('itens', 'assets/json/itens.json');
         this.load.json('txt', 'assets/json/txt_'+language+'.json');
     }
 
@@ -81,6 +82,7 @@ class Scene2 extends BaseScene {
 
         //JSONs
         this.monstersDB = this.cache.json.get('monsters')
+        this.itensDB = this.cache.json.get('itens')
         this.txtDB = this.cache.json.get('txt')
         
         //battle sprites
@@ -91,7 +93,7 @@ class Scene2 extends BaseScene {
         this.createBattleButtons();
 
         //shop sprites
-        this.shop = new Shop({scene:this});
+        this.shop = new Shop({scene:this, itens:this.itensDB});
         this.createShopButtons();
 
         //UI Sprites        
@@ -116,16 +118,32 @@ class Scene2 extends BaseScene {
         },this);
 
         this.input.keyboard.on('keyup-SPACE', function (event) {
+            this.player.savePlayerData();
             this.scene.pause();
             this.scene.launch('pauseGame');
         }, this);
 
+        /**
+         * DEBUG FUNCTIONS: Criar rotina na tela de apresentação para habilitar este modo
+         */
         this.input.keyboard.on('keyup-Z', function (event) {
             this.shop.showStore('atk');
         }, this);
 
         this.input.keyboard.on('keyup-X', function (event) {
             this.shop.showStore('def');
+        }, this);
+
+        this.input.keyboard.on('keyup-C', function (event) {
+            this.shop.showStore('spd');
+        }, this);
+        
+        this.input.keyboard.on('keyup-V', function (event) {
+            this.shop.showStore('item');
+        }, this);
+        
+        this.input.keyboard.on('keyup-G', function (event) {
+            this.player.gold += 50;
         }, this);
 
         //effects
@@ -637,25 +655,55 @@ class Scene2 extends BaseScene {
 
         Ao clicar: descreve o item e pergunta ao jogador se vai comprar por X moedas
          */
-        this.shop.showStore(tipo);
-        //this.modo = 'comando';
+        if (!this.player.foundshop){
+            this.messenger.showMessage([
+                [this.txtDB["LOJAENCONTRADA1"],"belle"],
+                [this.txtDB["LOJAENCONTRADA2"],"belle"],
+                [this.txtDB["LOJAENCONTRADA3"],"belle"],
+                [this.txtDB["LOJAENCONTRADA4"],"belle"],
+                [this.txtDB["LOJAENCONTRADA5"],"belle"]
+            ],
+            () => {
+                this.player.foundshop = true;
+                this.shop.showStore(tipo);
+            }
+        );
+        }else{
+            this.shop.showStore(tipo);
+        }
+    }
+
+    showShopButtons(tipo){
+        //TODO: Alterar os frames de cada botão de acordo com o tipo da loja
+        this.shopButtons.setVisible(true);
     }
 
     buySumthinWillYa(opt){
+        if (!this.shop.buymode) return;
         let produto = this.shop.getItemData(opt);
-        this.messenger.showMessage([[this.txtDB[produto.msg],"none"]], () => {
-            let choicer = new ChoiceMaker({scene:this});
-            choicer.showQuestion(this.txtDB["CONFIRMARCOMPRA"].replace('VARCOINS',produto.valor),
-            [this.txtDB["SIM"],this.txtDB["NAO"]],
-                () => {
-                    this.shop.buySumthinWillYa(opt);
-                },
-                () => {
-                    //this.modo = 'comando';
-                    console.log('não comprou');
-                }
-            );
-        });
+        this.shop.setBuyMode(false);
+        if (produto.msg == "SOLDOUT"){
+            this.messenger.showMessage([[this.txtDB["NAOTEMOSMAISESTEITEM"],"none"]], () => {
+                this.shop.setBuyMode(true);
+            });
+        }else if (produto.msg == "STUPIDEXCHANGE"){
+            this.messenger.showMessage([[this.txtDB["VOCEPOSSUIEQUIPAMENTOMELHOR"],"none"]], () => {
+                this.shop.setBuyMode(true);
+            });
+        }else {
+            this.messenger.showMessage([[this.txtDB[produto.msg],"none"]], () => {
+                let choicer = new ChoiceMaker({scene:this});
+                choicer.showQuestion(this.txtDB["CONFIRMARCOMPRA"].replace('VARCOINS',produto.valor),
+                [this.txtDB["SIM"],this.txtDB["NAO"]],
+                    () => {
+                        this.shop.buySumthinWillYa(opt);
+                    },
+                    () => {
+                        this.shop.setBuyMode(true);
+                    }
+                );
+            });
+        }
     }
 
     fecharLoja(){
@@ -752,6 +800,12 @@ class Scene2 extends BaseScene {
         }
     }
 
+    ressurectPlayer(){
+        this.pauseAction();
+        this.battlefield.showMiracleText(this.txtDB["VOCEUSOUPOCAO"]);
+        this.player.heal(false); 
+    }
+
     hitEnemy(){
         this.enemy.hp -= this.player.atk + this.player.bonusatk;
         if (this.enemy.hp > 0){
@@ -774,14 +828,15 @@ class Scene2 extends BaseScene {
     hitPlayer(projectile,player){
         if (!player.moving){
             projectile.destroy();
+            let dmg = this.battlefield.calculaDmg(this.linha - 1);
             if (this.player.shield <= 0){
                 this.eraseBullets();
                 if (!player.getBack){
-                    player.hp -= 1;
+                    player.hp -= dmg;
                 }
                 player.retreat();
             }else{                
-                this.player.shield--;
+                this.player.shield -= dmg;
                 this.player.y += 20;
             }
         }

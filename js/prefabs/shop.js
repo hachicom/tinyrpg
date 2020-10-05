@@ -4,8 +4,10 @@ class Shop extends Phaser.GameObjects.Group {
 
         //mantendo referência à cena atual
         this.scene = config.scene;
+        this.itensDB = config.itens;
 
-        //this.setActors(config.player,config.enemy);
+        this.buymode = false;
+        this.catalogo = "none";
 
         //Elementos gráficos
         this.field = this.create(game.config.width/2 + 50,100,"windowshop").setOrigin(0.5,0);
@@ -46,9 +48,8 @@ class Shop extends Phaser.GameObjects.Group {
 
         this.fieldween.on('complete', function(tween, targets){
             this.setAllTextVisibility(true);
-            // this.textween.seek(0);
-            // this.textween.play();
-            this.scene.shopButtons.setVisible(true); 
+            this.buymode = true;
+            this.scene.showShopButtons(this.catalogo);
         }, this);
 
         this.fieldweenOut = this.scene.tweens.add({
@@ -82,56 +83,125 @@ class Shop extends Phaser.GameObjects.Group {
         switch(tipo){
             case 'atk': 
                 this.titlelable.text = this.scene.txtDB['ATKLABEL'];
+                this.setItensLabels("weapons");
                 break;
             case 'def': 
                 this.titlelable.text = this.scene.txtDB['DEFLABEL'];
+                this.setItensLabels("shields");
                 break;
             case 'spd': 
                 this.titlelable.text = this.scene.txtDB['SPDLABEL'];
+                this.setItensLabels("boots");
                 break;
             case 'item': 
                 this.titlelable.text = this.scene.txtDB['ITEMLABEL'];
+                this.setItensLabels("items");
                 break;
         }
         this.fieldween.play();
     }
 
+    setItensLabels(tipo){
+        this.txtItem0.text = this.scene.txtDB[this.itensDB[tipo][0]["name"]];
+        this.txtPrice0.text = "y$ "+this.itensDB[tipo][0]["gold"];
+        this.txtItem1.text = this.scene.txtDB[this.itensDB[tipo][1]["name"]];
+        this.txtPrice1.text = "y$ "+this.itensDB[tipo][1]["gold"];
+        this.txtItem2.text = this.scene.txtDB[this.itensDB[tipo][2]["name"]];
+        this.txtPrice2.text = "y$ "+this.itensDB[tipo][2]["gold"];
+        this.catalogo = tipo;
+
+        if (this.catalogo == "items"){
+            this.updatePriceLabels();
+        }
+    }
+
+    updatePriceLabels(){
+        let tipo = "items";
+        if (typeof this.scene.player.inventory.items[this.itensDB[tipo][0]["name"]] != 'undefined' && 
+        this.scene.player.inventory.items[this.itensDB[tipo][0]["name"]] >= this.itensDB[tipo][0]["qtd"]){
+            this.txtPrice0.text = this.scene.txtDB["SOLDOUT"];
+        }
+        if (typeof this.scene.player.inventory.items[this.itensDB[tipo][1]["name"]] != 'undefined' && 
+        this.scene.player.inventory.items[this.itensDB[tipo][1]["name"]] >= this.itensDB[tipo][1]["qtd"]){
+            this.txtPrice1.text = this.scene.txtDB["SOLDOUT"];
+        }
+        if (typeof this.scene.player.inventory.items[this.itensDB[tipo][2]["name"]] != 'undefined' && 
+        this.scene.player.inventory.items[this.itensDB[tipo][2]["name"]] >= this.itensDB[tipo][2]["qtd"]){
+            this.txtPrice2.text = this.scene.txtDB["SOLDOUT"];
+        }
+    }
+
     getItemData(opt){
+        let item = this.itensDB[this.catalogo][opt];
+        if (item["type"] == 'item'){
+            if (typeof this.scene.player.inventory.items[item["name"]] != 'undefined' && 
+            this.scene.player.inventory.items[item["name"]] >= item["qtd"]){
+                return {
+                    msg: "SOLDOUT",
+                    valor: 0,
+                };
+            }
+        }else{
+            if (typeof this.scene.player.inventory[item["type"]]["level"] != 'undefined' && 
+            this.scene.player.inventory[item["type"]]["level"] >= item["level"]){
+                return {
+                    msg: "STUPIDEXCHANGE",
+                    valor: 0,
+                };
+            }
+        }
+        
         return {
-            msg: 'TESTEDESCRICAOPRODUTO',
-            valor: 10,
+            msg: item["desc"],
+            valor: item["gold"],
         };
     }
 
     buySumthinWillYa(opt){
-        console.log(opt);
-        /*        
-        if (this.custoenfermaria <= this.player.gold){
-            this.player.hp = this.player.maxhp;
-            this.player.gold -= this.custoenfermaria;
-            if (this.player.gold < 0) this.player.gold = 0;
-            this.messenger.showMessage([
-                [this.txtDB["SEUSPONTOSDEVIDAFORAMRECUPERADOS"],"none"]
+        let item = this.itensDB[this.catalogo][opt];
+        
+        if (item.gold <= this.scene.player.gold){
+            if (item.type != 'item'){
+                this.scene.player.equipItem(item);
+            }else{
+                if (typeof this.scene.player.inventory.items[item.name] == 'undefined'){
+                    this.scene.player.inventory.items[item.name] = 1;
+                }else{
+                    this.scene.player.inventory.items[item.name]++;
+                }
+                if (item.effect != "KEEP"){
+                    this.scene.player.playEffect(item.effect);
+                }
+
+            }
+            this.scene.player.gold -= item.gold;
+            if (this.scene.player.gold < 0) this.scene.player.gold = 0;
+            this.scene.messenger.showMessage([
+                [this.scene.txtDB["OBRIGADOPELACOMPRAVOLTESEMPRE"],"none"]
             ],
             () => {
-                this.modo = 'comando';
+                if (item.type == 'item') this.updatePriceLabels();
+                this.setBuyMode(true);
             });
         }else{
-            this.messenger.showMessage([
-                [this.txtDB["DINHEIROINSUFICIENTE"],"none"]
+            this.scene.messenger.showMessage([
+                [this.scene.txtDB["DINHEIROINSUFICIENTE"],"none"]
             ],
             () => {
-                this.modo = 'comando';
+                this.setBuyMode(true);
             });
         }
-         */
     }
 
     hideStore(){
         // this.textween.stop();
-        this.scene.shopButtons.setVisible(false); 
-        this.titlelable.setVisible(false);
+        this.scene.shopButtons.setVisible(false);
+        this.setAllTextVisibility(false);
         this.fieldweenOut.play();
+    }
+
+    setBuyMode(mode){
+        this.buymode = mode;
     }
     
     setAllTextVisibility(bool){        

@@ -22,10 +22,16 @@ class Player extends Phaser.GameObjects.Sprite {
         this.atk = 1;
         this.def = 1;
         this.spd = 1;
-        this.potions = 0;
         this.gold = 0;
         this.dead = false;
+        this.foundshop = false;
         this.shield = this.def;
+        this.inventory = {
+            "weapon": {},
+            "shield": {},
+            "boot": {},
+            "items": {},
+        };
 
         //mensagens tutorial
         this.bemvindo = false;
@@ -57,6 +63,40 @@ class Player extends Phaser.GameObjects.Sprite {
         });
     }
 
+    savePlayerData(){
+        playerdata.hp = this.hp;
+        playerdata.maxhp = this.maxhp;
+        playerdata.mp = this.mp;
+        playerdata.maxmp = this.maxmp;
+        playerdata.atk = this.atk;
+        playerdata.def = this.def;
+        playerdata.spd = this.spd;
+        playerdata.gold = this.gold;
+        playerdata.dead = this.dead;
+        playerdata.foundshop = this.foundshop;
+        playerdata.shield = this.shield;
+        playerdata.inventory = this.inventory
+        playerdata.bemvindo = this.bemvindo;
+        playerdata.encontrouEnfermaria = this.encontrouEnfermaria;
+    }
+
+    loadPlayerData(){
+        this.hp = playerdata.hp;
+        this.maxhp = playerdata.maxhp;
+        this.mp = playerdata.mp;
+        this.maxmp = playerdata.maxmp;
+        this.atk = playerdata.atk;
+        this.def = playerdata.def;
+        this.spd = playerdata.spd;
+        this.gold = playerdata.gold;
+        this.dead = playerdata.dead;
+        this.foundshop = playerdata.foundshop;
+        this.shield = playerdata.shield;
+        this.inventory = playerdata.inventory
+        this.bemvindo = playerdata.bemvindo;
+        this.encontrouEnfermaria = playerdata.encontrouEnfermaria;
+    }
+
     getReadytoBattle(){
         this.y = this.yInicial;
         this.x = this.startpos;
@@ -73,7 +113,32 @@ class Player extends Phaser.GameObjects.Sprite {
             this.hp = this.maxhp;
         }else{
             this.hp += 9 + rollDice(6);
+            if (this.hp > this.maxhp) this.hp = this.maxhp;
         }
+    }
+
+    playEffect(efeito){
+        switch(efeito){
+            case "HPMAXUP1": this.maxhp += 1; this.hp = this.maxhp; break;
+            case "HPMAXUP2": this.maxhp += 2; this.hp = this.maxhp; break;
+            case "MPMAXUP1": this.maxmp += 1; this.mp = this.maxmp; break;
+            case "MPMAXUP2": this.maxmp += 2; this.mp = this.maxmp; break;
+        }
+    }
+
+    equipItem(item){
+        //Remove os bônus do item anterior
+        if (typeof this.inventory[item.type]["level"] != 'undefined'){
+            this.atk -= this.inventory[item.type]["atk"];
+            this.def -= this.inventory[item.type]["def"];
+            this.spd -= this.inventory[item.type]["spd"];
+        }
+
+        //troca o equipamento e aplica as bonificações
+        this.atk += item["atk"];
+        this.def += item["def"];
+        this.spd += item["spd"];
+        this.scene.player.inventory[item.type] = item;
     }
 
     charge(){
@@ -158,8 +223,17 @@ class Player extends Phaser.GameObjects.Sprite {
                         this.recoverDefense();
                     }
                 }else{
-                    this.dead = true;
-                    this.scene.fimDaBatalha(false);
+                    if (this.inventory.items.POTION > 0){
+                        this.inventory.items.POTION--;
+                        this.scene.ressurectPlayer();
+                        if (this.chargingAttack) {
+                            this.getBack = false;
+                            this.recoverDefense();
+                        }
+                    }else{
+                        this.dead = true;
+                        this.scene.fimDaBatalha(false);
+                    }
                 }
                 
             }

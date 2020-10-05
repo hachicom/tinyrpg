@@ -90,6 +90,28 @@ var config = {
  */
 var frameFinalHerois = 15; //aumentar este valor caso altere o spritesheet
 var language = 'pt-br'; //en-us
+var playerdata = {
+    hp: 6,
+    maxhp: 6,
+    mp: 3,
+    maxmp: 3,
+    atk: 1,
+    def: 1,
+    spd: 1,
+    potions: 0,
+    gold: 0,
+    dead: false,
+    foundshop: false,
+    shield: 1,
+    bemvindo: false,
+    encontrouEnfermaria: false,
+    inventory: {
+        "weapon": {},
+        "shield": {},
+        "boot": {},
+        "items": {},
+    }
+};
 
 /**
  * FUNÇÕES GLOBAIS
