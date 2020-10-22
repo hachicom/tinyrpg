@@ -92,6 +92,20 @@ class Scene2 extends BaseScene {
         this.projectiles = this.add.group();
         this.createBattleButtons();
 
+        this.battleParticles = this.add.particles('iconsui');
+        this.battleParticles.createEmitter({
+            frame: 4,
+            angle: { min: 240, max: 300 },
+            speed: { min: 400, max: 600 },
+            quantity: { min: 2, max: 10 },
+            lifespan: 4000,
+            alpha: { start: 1, end: 0 },
+            scale: 0.25,
+            rotate: { start: 0, end: 360, ease: 'Back.easeOut' },
+            gravityY: 800,
+            on: false
+        });
+
         //shop sprites
         this.shop = new Shop({scene:this, itens:this.itensDB});
         this.createShopButtons();
@@ -353,8 +367,13 @@ class Scene2 extends BaseScene {
         //this.potionTxt = this.add.text(320,40, "0",txtStyle3).setOrigin(0,0);
 
         //pause
-        const pause = this.add.image(720,0,'icons',10).setOrigin(0,0);
-        pause.scale = 0.75;
+        this.pauseBtn = this.add.image(720,0,'icons',10).setOrigin(0,0);
+        this.pauseBtn.scale = 0.75;
+        this.pauseBtn.setInteractive().on('pointerdown', function(pointer){
+            this.player.savePlayerData();
+            this.scene.pause();
+            this.scene.launch('pauseGame');
+        }, this);
 
     }
 
@@ -528,13 +547,12 @@ class Scene2 extends BaseScene {
             this.executarLoja('item');
         }else{ //1: batalha
             this.startBattle();
-            this.modo = 'batalhar';
         }
     }
 
     executarEvento(){
         if (this.coluna == 4 && this.linha == 2){
-            this.messenger.showMessage([
+            /*this.messenger.showMessage([
                 [this.txtDB["BEMVINDO"],"none"],
                 [this.txtDB["NOVOGAME"],"none"]
             ],
@@ -542,7 +560,8 @@ class Scene2 extends BaseScene {
                     this.mapa[this.linha][this.coluna] = 0;
                     this.modo = 'comando';
                 }
-            );
+            );*/
+            this.startBattle(1);
         }else if (this.coluna == 4 && this.linha == 11){
             this.messenger.showMessage([["Aqui seria o final do jogo, onde ocorre a luta final","none"]],() => {
                 this.mapa[this.linha][this.coluna] = 0;
@@ -713,10 +732,13 @@ class Scene2 extends BaseScene {
     /**
      * BATALHA
      */
-    startBattle(){
+    startBattle(level){
+        if (typeof level == 'undefined') level = this.linha - 1;
         let monsterID = rollDice(2) - 1;
-        this.enemy.defineEnemy(this.monstersDB[this.linha - 1][monsterID]); //TODO: passar json contendo dados do monstro
+        this.enemy.defineEnemy(this.monstersDB[level][monsterID]); 
         this.battlefield.showBattlefield();
+        
+        this.modo = 'batalhar';
         this.battlemode = 'inicio';
     }
 
@@ -746,6 +768,10 @@ class Scene2 extends BaseScene {
         let bulletID = rollDice(4) -1;
         let bulletFrame = this.enemy.bullets[bulletID];
         var beam = new Bullet(this,this.enemy.defineShootLane(), this.enemy.y-200, this.linha - 1, bulletFrame);
+    }
+
+    createCoinParticle(pointer,quantity){
+        this.battleParticles.emitParticleAt(pointer.x, pointer.y,quantity);
     }
 
     eraseBullets(){        
@@ -807,28 +833,31 @@ class Scene2 extends BaseScene {
     }
 
     hitEnemy(){
+        if (this.enemy.dead) return false;
+
         this.enemy.hp -= this.player.atk + this.player.bonusatk;
         if (this.enemy.hp > 0){
-            this.shakenemy.shake({
-                duration: 500,
-                magnitude: 10
-            });
+            this.player.retreat();
         }else{
-            this.shakenemy.shake({
-                duration: 1000,
-                magnitude: 50
-            });
-            this.enemy.die();
-            this.player.wonBattle();
+            this.battlefield.showClickerMsg();
+            this.enemy.aboutToDie();
         }
-        this.player.retreat();
+        this.shakenemy.shake({
+            duration: 500,
+            magnitude: 10
+        });
         this.eraseBullets();
     }
 
     hitPlayer(projectile,player){
         if (!player.moving){
+            let tipoBullet = projectile.tipo;
             projectile.destroy();
+            
+            player.setStatusEffect(tipoBullet); //apenas alguns tipos causarão efeitos
             let dmg = this.battlefield.calculaDmg(this.linha - 1);
+            if (tipoBullet > 1) dmg *= 2; //frames 2 pra cima causam o dobro de dano
+            if (tipoBullet > 3) dmg *= 2; //frames
             if (this.player.shield <= 0){
                 this.eraseBullets();
                 if (!player.getBack){
@@ -851,8 +880,8 @@ class Scene2 extends BaseScene {
             });
         }else{
             this.battlemode = 'fim'; 
-            //this.modo = 'esperar';
-            this.battlefield.showVictoryMsg();
+            this.player.gold += this.enemy.gold;
+            this.battlefield.showVictoryMsg(this.enemy.gold);
         }
 
     }

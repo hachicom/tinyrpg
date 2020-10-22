@@ -48,12 +48,12 @@
         "name": "SPACEPIRATE3",
         "frame": 1,
         "hp": 7,
-        "atk": [0,0,0,0]
+        "atk": [0,1,2,3]
     },{
         "name": "GREENALIENADS",
         "frame": 2,
         "hp": 8,
-        "atk": [0,0,0,0]
+        "atk": [0,1,2,3]
     }],
     "6":[{
         "name": "DEVILCRUSH",

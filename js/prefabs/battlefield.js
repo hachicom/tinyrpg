@@ -13,12 +13,26 @@ class Battlefield extends Phaser.GameObjects.Group {
         this.add(this.msgcenter);
         this.msgcenter.setVisible(false);
         this.msgcenter.setDepth(10);
+        
+        this.cursetxt = this.scene.add.text(game.config.width/2,game.config.height - 360, "0",txtStyle4).setOrigin(0.5,0.5);
+        this.add(this.cursetxt);
+        this.cursetxt.setVisible(false);
 
         this.textween = this.scene.tweens.add({
             targets: this.msgcenter,
             alpha: { from: 0, to: 1 },
             ease: 'Linear',
             duration: 500,
+            repeat: -1,
+            paused: true,
+            yoyo: true
+        });
+
+        this.emergencytween = this.scene.tweens.add({
+            targets: this.msgcenter,
+            alpha: { from: 0, to: 1 },
+            ease: 'Linear',
+            duration: 100,
             repeat: -1,
             paused: true,
             yoyo: true
@@ -80,12 +94,14 @@ class Battlefield extends Phaser.GameObjects.Group {
         this.setVisible(true);
         this.field.y = game.config.height;
         this.msgcenter.alpha = 0;
-        this.msgcenter.text = this.scene.txtDB["CLICKTOSTARTBATTLE"];
+        this.msgcenter.text = this.scene.txtDB[this.scene.enemy.name] + 
+                              this.scene.txtDB["WANTSTOBATTLE"] + this.scene.txtDB["CLICKTOSTARTBATTLE"];
         this.fieldween.play();
     }
 
     startBattle(){
         this.textween.stop();
+        this.emergencytween.stop();
         this.msgcenter.setVisible(false);
         this.scene.battleButtons.setVisible(true);
         this.modo = 'jogando';
@@ -105,8 +121,22 @@ class Battlefield extends Phaser.GameObjects.Group {
         return dmg;
     }
 
-    showVictoryMsg(){
-        this.msgcenter.text = this.scene.txtDB["YOUWIN"];
+    showClickerMsg(){
+        console.log('showing');
+        this.msgcenter.text = this.scene.txtDB["TAPENEMY"];
+        this.msgcenter.setVisible(true);
+        this.msgcenter.alpha = 0;
+        this.emergencytween.seek(0);
+        this.emergencytween.play();
+    }
+
+    stopClickerMsg(){
+        this.emergencytween.stop();
+        this.msgcenter.setVisible(false);
+    }
+
+    showVictoryMsg(moedas){
+        this.msgcenter.text = this.scene.txtDB["YOUWIN"] + this.scene.txtDB["GANHOUMOEDAS"].replace('VARCOINS',moedas);
         this.msgcenter.setVisible(true);
         this.msgcenter.alpha = 0;
         this.textween.restart();
@@ -122,6 +152,15 @@ class Battlefield extends Phaser.GameObjects.Group {
     hideMiracleText(){
         this.msgcenter.text = "";
         this.msgcenter.setVisible(false);
+    }
+
+    showCurseText(curse,time){
+        if (time > 0){
+            this.cursetxt.setVisible(true);
+            this.cursetxt.text = curse+"\n"+time;
+        }else{
+            this.cursetxt.setVisible(false);
+        }
     }
 
     hideBattlefield(){

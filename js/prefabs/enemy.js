@@ -12,11 +12,15 @@ class Enemy extends Phaser.GameObjects.Sprite {
         this.laneRepeat = 0;;
 
         //status
+        this.name = "";
         this.hp = 2;
         this.potions = 0;
         this.gold = 2;
         this.level = 1;
         this.bullets = [0,0,0,0];
+        this.dead = false;
+        this.clickable = false;
+        this.qtdClicks = 0;
 
         //TODO: definir animações aqui
 
@@ -27,6 +31,11 @@ class Enemy extends Phaser.GameObjects.Sprite {
         config.scene.physics.add.existing(this);
         //this.body.setImmovable(true);
         this.body.setSize(this.width - 80, this.height - 140);
+
+        //permite ao jogador tocar no sprite, será usado para o modo tapper/clicker ao derrotar o inimigo
+        this.setInteractive().on('pointerdown', function(pointer){
+            this.tomaPorrada(pointer);
+        }, this);
 
         //começa invisível, sendo chamado apenas na hora da batalha
         this.setVisible(false);
@@ -57,14 +66,18 @@ class Enemy extends Phaser.GameObjects.Sprite {
     defineEnemy(config){
         console.log(config);
         this.setFrame(frameFinalHerois + config.frame);
+        this.name = config.name;
         this.hp = config.hp;
         this.potions = 0; //TODO: pensar em alguma funcionalidade onde o inimigo pode se recuperar após ser derrotado
-        this.gold = 2 * this.scene.linha;
-        this.level = this.scene.linha;
+        this.level = this.scene.linha - 1;
+        this.gold = 2 * this.level;
         this.bullets = config.atk;
     }
 
     getReadytoBattle(){
+        this.qtdClicks = 0;
+        this.clickable = false;
+        this.dead = false;
         this.setVisible(true);
         this.alpha = 0;
         this.appearTween.play();
@@ -94,15 +107,48 @@ class Enemy extends Phaser.GameObjects.Sprite {
         return this.shootpositions[lane];
     }
 
-    die(){
+    aboutToDie(){
+        this.clickable = true;
+        this.dead = true;
+        this.scene.player.wonBattle();
         this.shootTimer.remove(false);
+        this.dieTimer = this.scene.time.addEvent(
+            { delay: 2000, callback: this.die, callbackScope: this, loop: false }
+        );
+        console.log(this.level);
+    }
+
+    tomaPorrada(pointer){
+        if (this.clickable){
+            this.scene.shakenemy.shake({
+                duration: 250,
+                magnitude: 50
+            });
+            this.qtdClicks += this.scene.player.atk;
+            if (this.qtdClicks > 5){
+                this.gold += this.level;
+                this.scene.createCoinParticle(pointer,this.level);
+            }
+        }
+    }
+
+    die(){
+        this.scene.battlefield.stopClickerMsg();
+        this.scene.shakenemy.shake({
+            duration: 1500,
+            magnitude: 100
+        });
+        this.clickable = false;
+        this.scene.player.retreat();
+        this.scene.player.wonBattle();
         this.disappearTween.play();
         this.scene.battleButtons.setVisible(false);
+        
+        console.log('got '+this.gold+' coins.');
     }
 
     getoutoftheRing(){
         this.setVisible(false);
-        //TODO: fadeout?
     }
 
     pause(waitExternal){

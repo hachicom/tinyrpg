@@ -1,7 +1,7 @@
-class Bullet extends Phaser.GameObjects.Sprite {
-    constructor(scene,x,y,level,frame) {
-        super(scene, x, y, "bullets", frame);
-        this.scale = 0.5;
+class Coin extends Phaser.GameObjects.Sprite {
+    constructor(scene,x,y,frame) {
+        super(scene, x, y, "iconsui", frame);
+        this.scale = 0.25;
 
         this.velocidade = 400 + (level * 50);
 

@@ -20,7 +20,7 @@ class Player extends Phaser.GameObjects.Sprite {
         this.mp = 3;
         this.maxmp = 3;
         this.atk = 1;
-        this.def = 1;
+        this.def = 0;
         this.spd = 1;
         this.gold = 0;
         this.dead = false;
@@ -40,6 +40,13 @@ class Player extends Phaser.GameObjects.Sprite {
         //incrementados ao invocar os milagres might e protect. Somem após o fim da batalha
         this.bonusatk = 0;
         this.bonusdef = 0;
+
+        //efeitos negativos. Somem após final da batalha ou depois de um tempo
+        this.cursed = 0;
+        this.curse = "";
+        this.curseatk = 0;
+        this.cursedef = 0;
+        this.cursespd = 0;
 
         //TODO: definir animações aqui
 
@@ -115,6 +122,8 @@ class Player extends Phaser.GameObjects.Sprite {
             this.hp += 9 + rollDice(6);
             if (this.hp > this.maxhp) this.hp = this.maxhp;
         }
+        this.curseTimer = 0;
+        this.removeStatusEffect();
     }
 
     playEffect(efeito){
@@ -124,6 +133,35 @@ class Player extends Phaser.GameObjects.Sprite {
             case "MPMAXUP1": this.maxmp += 1; this.mp = this.maxmp; break;
             case "MPMAXUP2": this.maxmp += 2; this.mp = this.maxmp; break;
         }
+    }
+
+    setStatusEffect(curse){
+        switch(curse){
+            case 1:  //poisoned
+                if (this.cursed < 1) {
+                    Math.round(this.cursespd = (3 * this.spd) / 2); 
+                    this.curse = "POISON";
+                    this.cursed = curse;
+                    this.curseTimer = 200;
+                }
+                break;
+            case 3: //disease
+                if (this.cursed < 3) {
+                    this.cursespd = (3 * this.spd) - 1; this.curseatk = this.atk - 1; 
+                    this.curse = "DISEASE";
+                    this.cursed = curse;
+                    this.curseTimer = 500;
+                }
+                break;
+        }
+    }
+
+    removeStatusEffect(){
+        this.curseatk = 0;
+        this.cursedef = 0;
+        this.cursespd = 0;
+        this.cursed = 0;
+        this.curse = "";
     }
 
     equipItem(item){
@@ -169,6 +207,8 @@ class Player extends Phaser.GameObjects.Sprite {
     getoutoftheRing(){
         this.bonusatk = 0;
         this.bonusdef = 0;
+        this.curseTimer = 0;
+        this.removeStatusEffect();
         this.setVisible(false);
         //TODO: fadeout?
     }
@@ -189,6 +229,15 @@ class Player extends Phaser.GameObjects.Sprite {
     updatePosition(){
         if (this.paused) return false;
 
+        this.scene.battlefield.showCurseText(this.curse,this.curseTimer);
+        if (this.curseTimer > 0){
+            this.curseTimer -= 1;
+            if (this.curseTimer <= 0) {
+                this.curseTimer = 0;
+                this.removeStatusEffect();
+            }
+        }
+
         if (this.moving == true){
             if(this.x<this.nextpos) {
                 this.x+=20;
@@ -207,7 +256,7 @@ class Player extends Phaser.GameObjects.Sprite {
 
         if (this.chargingAttack) {
             if (!this.getBack) {
-                this.y -= 3 * this.spd;
+                this.y -= (3 * this.spd) - this.cursespd;
             }
         }
 
