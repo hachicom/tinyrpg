@@ -17,15 +17,20 @@ class ChoiceMaker extends Phaser.GameObjects.Group {
         this.closeCallback = false;
 
         //Elementos gráficos
-        this.msgbox = this.create(game.config.width/2,game.config.height,"txtbox").setOrigin(0.5,0);
+        this.graphics = this.scene.add.graphics();
+        this.graphics.fillStyle(0x000000, 0.75);
+        this.graphics.fillRectShape(new Phaser.Geom.Rectangle(0, 80, game.config.width, game.config.height));
+        this.add(this.graphics);
+
+        this.msgbox = this.create(game.config.width/2,game.config.height,"box2").setOrigin(0.5,0);
         this.msgtxt = this.scene.add.text(40,game.config.height - 300, "",txtStyle2).setOrigin(0,0);
         this.add(this.msgtxt);
         
-        this.choicebox1 = this.create(game.config.width/2,game.config.height/2 - 100,"txtbox").setOrigin(0.5,0.5).setScale(0.75,0.25);
+        this.choicebox1 = this.create(game.config.width/2,game.config.height/2 - 100,"btns120").setOrigin(0.5,0.5).setScale(1.5,0.75);
         this.add(this.choicebox1);
-        this.choicebox2 = this.create(game.config.width/2,game.config.height/2,"txtbox").setOrigin(0.5,0.5).setScale(0.75,0.25);
+        this.choicebox2 = this.create(game.config.width/2,game.config.height/2,"btns120").setOrigin(0.5,0.5).setScale(1.5,0.75);
         this.add(this.choicebox2);
-        this.choicebox3 = this.create(game.config.width/2,game.config.height/2 + 100,"txtbox").setOrigin(0.5,0.5).setScale(0.75,0.25);
+        this.choicebox3 = this.create(game.config.width/2,game.config.height/2 + 100,"btns120").setOrigin(0.5,0.5).setScale(1.5,0.75);
         this.add(this.choicebox3);
 
         

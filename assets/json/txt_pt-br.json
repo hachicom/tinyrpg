@@ -88,5 +88,8 @@
     "BOOKDESC": "Este livro aumenta sua fé máxima em + 1",
     "SIM": "sim",
     "NAO": "não",
+    "ATAQUE": "Ataque",
+    "DEFESA": "Defesa",
+    "VELOCIDADE": "Velocidade",
     "GAMEOVER": "fim de jogo"
 }

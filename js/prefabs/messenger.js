@@ -17,7 +17,7 @@ class Messenger extends Phaser.GameObjects.Group {
         this.callback = false;
 
         //Elementos gráficos
-        this.msgbox = this.create(game.config.width/2,game.config.height,"txtbox").setOrigin(0.5,0);
+        this.msgbox = this.create(game.config.width/2,game.config.height,"box2").setOrigin(0.5,0);
         this.msgtxt = this.scene.add.text(40,game.config.height, "",txtStyle2).setOrigin(0,0);
         this.add(this.msgtxt);
 

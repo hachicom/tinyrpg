@@ -50,24 +50,8 @@ class Scene2 extends BaseScene {
         this.fade(true, 1000, 0,0,0, false);
     }
 
-    preload(){
-        this.load.spritesheet('tileset', 'assets/images/Tileset80.png',{ frameWidth: 80, frameHeight: 80 });
-        this.load.spritesheet('characters', 'assets/images/characters.png',{ frameWidth: 320, frameHeight: 320 });
-        this.load.spritesheet('bullets', 'assets/images/bullets.png',{ frameWidth: 240, frameHeight: 240 });
-        this.load.spritesheet('icons', 'assets/images/icons120.png',{ frameWidth: 120, frameHeight: 120 });
-        this.load.spritesheet('btns120', 'assets/images/btns120.png',{ frameWidth: 480, frameHeight: 120 });
-        this.load.spritesheet('heartui', 'assets/images/icons320.png',{ frameWidth: 160, frameHeight: 320 });
-        this.load.spritesheet('iconsui', 'assets/images/icons320.png',{ frameWidth: 320, frameHeight: 320 });
-        this.load.image('planet', 'assets/images/planet.png');
-        this.load.image('starfield', 'assets/images/starfield.png');
-        this.load.image('battlefield', 'assets/images/battlefield.png');
-        this.load.image('windowshop', 'assets/images/Win4.png');
-        this.load.image('txtbox', 'assets/images/Txtbox.png');
-        this.load.tilemapTiledJSON('map', 'assets/json/tileset80.json');
-        this.load.plugin('rexshakepositionplugin', 'js/rexshakepositionplugin.min.js', true);
-        this.load.json('monsters', 'assets/json/monsters.json');
-        this.load.json('itens', 'assets/json/itens.json');
-        this.load.json('txt', 'assets/json/txt_'+language+'.json');
+    preload(){ 
+        //TODO: verificar a necessidade de carregar assets nesta tela ou em uma cena de loader própria
     }
 
     create(){
@@ -81,9 +65,9 @@ class Scene2 extends BaseScene {
         this.positions = [(game.config.width/2) - 80,(game.config.width/2) + 80];
 
         //JSONs
-        this.monstersDB = this.cache.json.get('monsters')
-        this.itensDB = this.cache.json.get('itens')
-        this.txtDB = this.cache.json.get('txt')
+        this.monstersDB = this.cache.json.get('monsters');
+        this.itensDB = this.cache.json.get('itens');
+        this.txtDB = this.cache.json.get('txt');
         
         //battle sprites
         this.battlefield = new Battlefield({scene:this});
@@ -305,7 +289,7 @@ class Scene2 extends BaseScene {
     createShopButtons(){
         this.shopButtons = this.add.group();
 
-        let btn0 = this.add.image(game.config.width/2 - 64,game.config.height/2 - 368,'icons',0).setOrigin(0,0);
+        let btn0 = this.add.image(game.config.width/2 - 160,game.config.height/2 - 378,'icons',0).setOrigin(0,0);
         btn0.setInteractive().on('pointerdown', function(pointer){
             this.buySumthinWillYa(0);
         }, this);
@@ -323,7 +307,7 @@ class Scene2 extends BaseScene {
         }, this);
         this.shopButtons.add(btn2); 
 
-        let btnC = this.add.image(game.config.width/2 + 168,130,'icons',5).setOrigin(0,0);
+        let btnC = this.add.image(game.config.width/2 + 264,110,'icons',5).setOrigin(0,0);
         btnC.setInteractive().on('pointerdown', function(pointer){
             this.fecharLoja();
         }, this);
@@ -550,9 +534,9 @@ class Scene2 extends BaseScene {
         }
     }
 
-    executarEvento(){
+    executarEvento(){ //TODO: criar prefab só para eventos, para ter melhor controle dos scripts
         if (this.coluna == 4 && this.linha == 2){
-            /*this.messenger.showMessage([
+            this.messenger.showMessage([
                 [this.txtDB["BEMVINDO"],"none"],
                 [this.txtDB["NOVOGAME"],"none"]
             ],
@@ -560,8 +544,7 @@ class Scene2 extends BaseScene {
                     this.mapa[this.linha][this.coluna] = 0;
                     this.modo = 'comando';
                 }
-            );*/
-            this.startBattle(1);
+            );
         }else if (this.coluna == 4 && this.linha == 11){
             this.messenger.showMessage([["Aqui seria o final do jogo, onde ocorre a luta final","none"]],() => {
                 this.mapa[this.linha][this.coluna] = 0;

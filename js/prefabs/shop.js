@@ -10,28 +10,28 @@ class Shop extends Phaser.GameObjects.Group {
         this.catalogo = "none";
 
         //Elementos gráficos
-        this.field = this.create(game.config.width/2 + 50,100,"windowshop").setOrigin(0.5,0);
+        this.field = this.create(game.config.width/2 + 50,100,"window3").setOrigin(0.5,0);
 
         //textos
-        this.titlelable = this.scene.add.text(this.field.x - 20,this.field.y + 48, "shop",txtStyle1).setOrigin(0.5,0);
+        this.titlelable = this.scene.add.text(this.field.x - 80,this.field.y + 30, "shop",txtStyle1).setOrigin(0.5,0);
         this.add(this.titlelable);
         
-        this.txtItem0 = this.scene.add.text(this.field.x + 20,this.field.y + 152, "item 1 xyz",txtStyle3).setOrigin(0,0);
+        this.txtItem0 = this.scene.add.text(this.field.x - 60,this.field.y + 152, "item 1 xyz",txtStyle3).setOrigin(0,0);
         this.add(this.txtItem0);
-        this.txtPrice0 = this.scene.add.text(this.field.x + 20,this.txtItem0.y + 64, "y$ 10",txtStyle4).setOrigin(0,0);
+        this.txtPrice0 = this.scene.add.text(this.field.x - 60,this.txtItem0.y + 64, "y$ 10",txtStyle4).setOrigin(0,0);
         this.add(this.txtPrice0);
 
-        this.txtItem1 = this.scene.add.text(this.field.x + 20,this.field.y + 342, "item 2 wkz",txtStyle3).setOrigin(0,0);
+        this.txtItem1 = this.scene.add.text(this.txtItem0.x,this.field.y + 342, "item 2 wkz",txtStyle3).setOrigin(0,0);
         this.add(this.txtItem1);
-        this.txtPrice1 = this.scene.add.text(this.field.x + 20,this.txtItem1.y + 64, "y$ 200",txtStyle4).setOrigin(0,0);
+        this.txtPrice1 = this.scene.add.text(this.txtItem0.x,this.txtItem1.y + 64, "y$ 200",txtStyle4).setOrigin(0,0);
         this.add(this.txtPrice1);
 
-        this.txtItem2 = this.scene.add.text(this.field.x + 20,this.field.y + 532, "item 3 wkz",txtStyle3).setOrigin(0,0);
+        this.txtItem2 = this.scene.add.text(this.txtItem0.x,this.field.y + 532, "item 3 wkz",txtStyle3).setOrigin(0,0);
         this.add(this.txtItem2);
-        this.txtPrice2 = this.scene.add.text(this.field.x + 20,this.txtItem2.y + 64, "y$ 3000",txtStyle4).setOrigin(0,0);
+        this.txtPrice2 = this.scene.add.text(this.txtItem0.x,this.txtItem2.y + 64, "y$ 3000",txtStyle4).setOrigin(0,0);
         this.add(this.txtPrice2);
 
-        this.explainLabel = this.scene.add.text(this.field.x - 120,this.field.y + 720, "clique icones p/ comprar",txtStyle5).setOrigin(0,0);
+        this.explainLabel = this.scene.add.text(this.field.x,this.field.y + 720, "clique icones p/ comprar",txtStyle5).setOrigin(0.5,0);
         this.add(this.explainLabel);
         
         this.setAllTextVisibility(false);
