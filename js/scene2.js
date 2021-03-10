@@ -10,9 +10,9 @@ class Scene2 extends BaseScene {
         this.mapa = [
             ['x','x','x','x','x','x','x','x','x'],
             ['x','x','x','x',0,'x','x','x','x'],
-                  ['x',1,1,3,2,6,1,1,'x'],
+                  ['x',1,1,3,2,3,1,1,'x'],
                   ['x',1,1,4,9,7,1,1,'x'],
-                  ['x',1,1,7,5,8,1,1,'x'],
+                  ['x',1,1,6,5,8,1,1,'x'],
                   ['x',1,1,1,1,1,1,1,'x'],
                   ['x',1,1,1,1,1,1,1,'x'],
                   ['x',1,1,1,1,1,1,1,'x'],
@@ -56,7 +56,7 @@ class Scene2 extends BaseScene {
 
     create(){
         this.createStage();
-        this.createMoveButtons();
+        this.createMoveButtons(this.coluna,this.linha);
 
         const posicao = this.placeOnMap(this.coluna,this.linha);        
         this.playericon = this.physics.add.sprite(posicao.x,posicao.y,'characters',0).setOrigin(0,0);
@@ -154,7 +154,7 @@ class Scene2 extends BaseScene {
 
     update() {
         this.starfield.tilePositionX += 0.5;
-        this.starfield.tilePositionY += 0.5;
+        this.starfield.tilePositionY += 0.8;
         this.updateUI();
 
         //this.debugmovimento.text = this.moveX+','+this.moveY+' - '+this.modo;
@@ -205,29 +205,29 @@ class Scene2 extends BaseScene {
         });
     }
 
-    createMoveButtons(){
-        let posicao = this.placeOnMap(4,2);
+    createMoveButtons(coluna,linha){
+        let posicao = this.placeOnMap(coluna,linha + 1);
         let areaDown = this.add.image(posicao.x,posicao.y,'tileset',11).setOrigin(0,0);
         areaDown.setInteractive().on('pointerdown', function(pointer){
             this.move(this,0,80,1,0);
         }, this);
         this.movebuttons.push(areaDown);
 
-        posicao = this.placeOnMap(3,1); 
+        posicao = this.placeOnMap(coluna - 1,linha); 
         let areaLeft = this.add.image(posicao.x,posicao.y,'tileset',11).setOrigin(0,0);
         areaLeft.setInteractive().on('pointerdown', function(pointer){
             this.move(this,-80,0,0,-1);
         }, this);
         this.movebuttons.push(areaLeft);
         
-        posicao = this.placeOnMap(5,1); 
+        posicao = this.placeOnMap(coluna + 1,linha); 
         let areaRight = this.add.image(posicao.x,posicao.y,'tileset',11).setOrigin(0,0);
         areaRight.setInteractive().on('pointerdown', function(pointer){
             this.move(this,80,0,0,1);
         }, this);
         this.movebuttons.push(areaRight);
         
-        posicao = this.placeOnMap(4,0); 
+        posicao = this.placeOnMap(coluna,linha - 1); 
         let areaUp = this.add.image(posicao.x,posicao.y,'tileset',11).setOrigin(0,0);
         areaUp.setInteractive().on('pointerdown', function(pointer){
             this.move(this,0,-80,-1,0);
@@ -246,17 +246,25 @@ class Scene2 extends BaseScene {
 
     createBattleButtons(){
         this.battleButtons = this.add.group();
-
         let miracleTxt = this.add.text(game.config.width/2 + 160,game.config.height - 280, "x 3",txtStyle1).setOrigin(0,0);
         this.battleButtons.add(miracleTxt);
+        
+        let dodgeBtn = this.add.image(game.config.width - 40,game.config.height - 180,'btns120',0).setOrigin(1,0);
+        dodgeBtn.setInteractive().on('pointerdown', function(pointer){
+            this.player.changeLane(pointer);
+        }, this);
+        this.battleButtons.add(dodgeBtn);
 
-        let healBtn = this.add.image(miracleTxt.x,miracleTxt.y - 120,'icons',0).setOrigin(0,0);
+        let dodgeTxt = this.add.text(dodgeBtn.x-240,dodgeBtn.y, this.txtDB["DODGELABEL"],txtStyleBtn).setOrigin(0.5,0);
+        this.battleButtons.add(dodgeTxt);
+
+        let healBtn = this.add.image(dodgeBtn.x - 600,dodgeBtn.y + 60,'icons',0).setOrigin(0,0);
         healBtn.setInteractive().on('pointerdown', function(pointer){
             this.callMiracle('heal');
         }, this);
         this.battleButtons.add(healBtn);  
         
-        let clearBtn = this.add.image(healBtn.x,healBtn.y - 120,'icons',1).setOrigin(0,0);
+        let clearBtn = this.add.image(healBtn.x - 120,healBtn.y,'icons',1).setOrigin(0,0);
         clearBtn.setInteractive().on('pointerdown', function(pointer){
             this.callMiracle('clear');
         }, this);
@@ -268,20 +276,11 @@ class Scene2 extends BaseScene {
         }, this);
         this.battleButtons.add(mightBtn); 
         
-        let protectBtn = this.add.image(mightBtn.x,mightBtn.y - 120,'icons',3).setOrigin(0,0);
+        let protectBtn = this.add.image(mightBtn.x + 120,mightBtn.y,'icons',3).setOrigin(0,0);
         protectBtn.setInteractive().on('pointerdown', function(pointer){
             this.callMiracle('protect');
         }, this);
         this.battleButtons.add(protectBtn);   
-        
-        let dodgeBtn = this.add.image(game.config.width/2 - 240,game.config.height - 160,'btns120',0).setOrigin(0,0);
-        dodgeBtn.setInteractive().on('pointerdown', function(pointer){
-            this.player.changeLane(pointer);
-        }, this);
-        this.battleButtons.add(dodgeBtn);
-
-        let dodgeTxt = this.add.text(game.config.width/2,dodgeBtn.y, this.txtDB["DODGELABEL"],txtStyleBtn).setOrigin(0.5,0);
-        this.battleButtons.add(dodgeTxt);
 
         this.battleButtons.setVisible(false);
     }

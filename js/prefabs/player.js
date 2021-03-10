@@ -21,7 +21,7 @@ class Player extends Phaser.GameObjects.Sprite {
         this.maxmp = 3;
         this.atk = 1;
         this.def = 0;
-        this.spd = 1;
+        this.spd = 0;
         this.gold = 0;
         this.dead = false;
         this.foundshop = false;
@@ -31,6 +31,10 @@ class Player extends Phaser.GameObjects.Sprite {
             "shield": {},
             "boot": {},
             "items": {},
+        };
+        
+        this.miracles = {
+            'heal': 0,'clear': 0,'might': 0,'protect': 0
         };
 
         //mensagens tutorial
@@ -82,7 +86,8 @@ class Player extends Phaser.GameObjects.Sprite {
         playerdata.dead = this.dead;
         playerdata.foundshop = this.foundshop;
         playerdata.shield = this.shield;
-        playerdata.inventory = this.inventory
+        playerdata.inventory = this.inventory;
+        playerdata.miracles = this.miracles;
         playerdata.bemvindo = this.bemvindo;
         playerdata.encontrouEnfermaria = this.encontrouEnfermaria;
     }
@@ -99,7 +104,8 @@ class Player extends Phaser.GameObjects.Sprite {
         this.dead = playerdata.dead;
         this.foundshop = playerdata.foundshop;
         this.shield = playerdata.shield;
-        this.inventory = playerdata.inventory
+        this.inventory = playerdata.inventory;
+        this.miracles = playerdata.miracles;
         this.bemvindo = playerdata.bemvindo;
         this.encontrouEnfermaria = playerdata.encontrouEnfermaria;
     }
@@ -139,7 +145,7 @@ class Player extends Phaser.GameObjects.Sprite {
         switch(curse){
             case 1:  //poisoned
                 if (this.cursed < 1) {
-                    Math.round(this.cursespd = (3 * this.spd) / 2); 
+                    Math.round(this.cursespd = (3 + this.spd) / 2); 
                     this.curse = "POISON";
                     this.cursed = curse;
                     this.curseTimer = 200;
@@ -147,7 +153,8 @@ class Player extends Phaser.GameObjects.Sprite {
                 break;
             case 3: //disease
                 if (this.cursed < 3) {
-                    this.cursespd = (3 * this.spd) - 1; this.curseatk = this.atk - 1; 
+                    this.cursespd = (3 * this.spd) - 1; 
+                    this.curseatk = this.atk - 1; 
                     this.curse = "DISEASE";
                     this.cursed = curse;
                     this.curseTimer = 500;
@@ -256,7 +263,7 @@ class Player extends Phaser.GameObjects.Sprite {
 
         if (this.chargingAttack) {
             if (!this.getBack) {
-                this.y -= (3 * this.spd) - this.cursespd;
+                this.y -= (3 + this.spd) - this.cursespd;
             }
         }
 

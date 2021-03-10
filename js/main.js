@@ -110,6 +110,9 @@ var playerdata = {
         "shield": {},
         "boot": {},
         "items": {},
+    },
+    miracles: {
+        'heal': 0,'clear': 0,'might': 0,'protect': 0
     }
 };
 

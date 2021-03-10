@@ -13,7 +13,7 @@
         "type": "weapon",
         "desc": "CLAWLV2DESC",
         "level": 2,
-        "atk": 4,
+        "atk": 3,
         "def": 0,
         "spd": 0,
         "gold": 10
@@ -22,7 +22,7 @@
         "type": "weapon",
         "desc": "CLAWLV3DESC",
         "level": 3,
-        "atk": 7,
+        "atk": 4,
         "def": 0,
         "spd": 0,
         "gold": 20
@@ -33,7 +33,7 @@
         "desc": "SHIELDLV1DESC",
         "level": 1,
         "atk": 0,
-        "def": 1,
+        "def": 2,
         "spd": 0,
         "gold": 4
     },{
@@ -42,7 +42,7 @@
         "desc": "SHIELDLV2DESC",
         "level": 2,
         "atk": 1,
-        "def": 2,
+        "def": 3,
         "spd": 0,
         "gold": 10
     },{
@@ -51,7 +51,7 @@
         "desc": "SHIELDLV3DESC",
         "level": 3,
         "atk": 0,
-        "def": 4,
+        "def": 5,
         "spd": 0,
         "gold": 16
     }],
@@ -71,7 +71,7 @@
         "level": 2,
         "atk": 0,
         "def": 0,
-        "spd": 3,
+        "spd": 4,
         "gold": 5
     },{
         "name": "BOOTLV3",
